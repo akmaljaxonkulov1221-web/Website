@@ -166,7 +166,7 @@
 <script>
 // Domain Distribution Chart
 const domainCtx = document.getElementById('domainChart').getContext('2d');
-const domainData = {{ analysis_report.get('domain_distribution', {})|tojson }};
+const domainData = {{ analysis_report.get('domain_distribution', {})|tojson|safe }};
 new Chart(domainCtx, {
     type: 'doughnut',
     data: {
@@ -198,7 +198,7 @@ new Chart(domainCtx, {
 
 // Severity Distribution Chart
 const severityCtx = document.getElementById('severityChart').getContext('2d');
-const severityData = {{ analysis_report.get('punishment_severity_distribution', {})|tojson }};
+const severityData = {{ analysis_report.get('punishment_severity_distribution', {})|tojson|safe }};
 new Chart(severityCtx, {
     type: 'bar',
     data: {
@@ -206,10 +206,10 @@ new Chart(severityCtx, {
         datasets: [{
             label: 'Moddalar soni',
             data: [
-                severityData.extreme || 0,
-                severityData.high || 0,
-                severityData.medium || 0,
-                severityData.low || 0
+                (severityData && severityData.extreme) || 0,
+                (severityData && severityData.high) || 0,
+                (severityData && severityData.medium) || 0,
+                (severityData && severityData.low) || 0
             ],
             backgroundColor: [
                 '#e74c3c',
