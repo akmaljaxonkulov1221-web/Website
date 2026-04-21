@@ -56,6 +56,15 @@ def load_data():
 @app.route('/')
 def index():
     """Asosiy sahifa"""
+    # Force reload data to ensure latest version
+    load_data()
+    
+    # Debug info
+    print(f"DEBUG: Legal codes loaded: {len(LEGAL_DATA)}")
+    print(f"DEBUG: Analysis report keys: {list(ANALYSIS_REPORT.keys()) if ANALYSIS_REPORT else 'None'}")
+    print(f"DEBUG: Total codes: {ANALYSIS_REPORT.get('total_codes', 0)}")
+    print(f"DEBUG: Total articles: {ANALYSIS_REPORT.get('total_articles', 0)}")
+    
     return render_template('professional_index.html', 
                          legal_codes=list(LEGAL_DATA.keys()),
                          analysis_report=ANALYSIS_REPORT)
