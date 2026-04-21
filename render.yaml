@@ -1,0 +1,13 @@
+services:
+  # Web Service
+  - type: web
+    name: legal-system
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn professional_legal_app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5000

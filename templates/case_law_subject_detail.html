@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject.name }} - Case-Law Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 0;
+        }
+        
+        .navbar-blur {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .article-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .article-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar-blur sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-balance-scale text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-xl text-gray-800">Case-Law</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>Bosh sahifa
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-book mr-2"></i>Fanlar
+                    </a>
+                    <a href="{{ url_for('legal_map') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-map mr-2"></i>Xarita
+                    </a>
+                    {% if session.get('is_teacher') %}
+                    <a href="{{ url_for('teacher_panel') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>Panel
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-gray-700 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                            <img src="{{ session.avatar }}" alt="Avatar" class="user-avatar">
+                            <span class="font-medium">{{ session.first_name }}</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                    </div>
+                    
+                    <a href="{{ url_for('logout') }}" class="text-gray-700 hover:text-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <nav class="flex items-center text-white/80 text-sm mb-4">
+                        <a href="{{ url_for('dashboard') }}" class="hover:text-white transition-colors">Bosh sahifa</a>
+                        <i class="fas fa-chevron-right mx-2"></i>
+                        <a href="{{ url_for('subjects') }}" class="hover:text-white transition-colors">Fanlar</a>
+                        <i class="fas fa-chevron-right mx-2"></i>
+                        <span class="text-white">{{ subject.name }}</span>
+                    </nav>
+                    <h1 class="text-4xl font-bold text-white mb-4">{{ subject.name }}</h1>
+                    <p class="text-xl text-white/90 mb-6">{{ subject.description }}</p>
+                    <div class="flex items-center space-x-6">
+                        <div class="bg-white/20 backdrop-blur-lg rounded-lg px-4 py-2">
+                            <span class="text-white font-semibold">{{ articles|length }} modda</span>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-lg rounded-lg px-4 py-2">
+                            <span class="text-white font-semibold">0% o'rganilgan</span>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-lg rounded-lg px-4 py-2">
+                            <span class="text-white font-semibold">0 soat</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden lg:block">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center">
+                        <i class="fas fa-book text-6xl text-white mb-4"></i>
+                        <div class="text-2xl font-bold text-white mb-2">{{ subject.name }}</div>
+                        <div class="text-white/80">To'liq kurs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-12">
+        <!-- Tabs -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-6">
+                <div class="flex space-x-1 mb-4 md:mb-0">
+                    <button class="tab-button active px-6 py-2 rounded-lg font-medium" onclick="showTab('articles')">
+                        <i class="fas fa-file-alt mr-2"></i>Moddalar
+                    </button>
+                    <button class="tab-button px-6 py-2 rounded-lg font-medium bg-gray-100 text-gray-700" onclick="showTab('progress')">
+                        <i class="fas fa-chart-line mr-2"></i>Progress
+                    </button>
+                    <button class="tab-button px-6 py-2 rounded-lg font-medium bg-gray-100 text-gray-700" onclick="showTab('tests')">
+                        <i class="fas fa-clipboard-check mr-2"></i>Testlar
+                    </button>
+                    <button class="tab-button px-6 py-2 rounded-lg font-medium bg-gray-100 text-gray-700" onclick="showTab('resources')">
+                        <i class="fas fa-download mr-2"></i>Resurslar
+                    </button>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Modda qidirish..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+                        <option>Barchasi</option>
+                        <option>O'rganilgan</option>
+                        <option>O'rganilmagan</option>
+                        <option>Xatcho'plar</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Articles Tab -->
+            <div id="articles-tab" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for article in articles %}
+                    <div class="article-card bg-white rounded-lg border border-gray-200 p-6" onclick="openArticle('{{ article.id }}', '{{ subject.code }}')">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                    <i class="fas fa-file-alt text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">{{ article.modda }}-modda</h3>
+                                    <div class="text-sm text-gray-500">{{ subject.name }}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <span class="text-xs text-gray-500">Yangi</span>
+                            </div>
+                        </div>
+                        <h4 class="font-medium text-gray-800 mb-2">{{ article.nomi }}</h4>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">{{ article.matn[:150] }}...</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                <span><i class="fas fa-clock mr-1"></i>15 min</span>
+                                <span><i class="fas fa-chart-line mr-1"></i>Oson</span>
+                            </div>
+                            <button class="text-purple-600 hover:text-purple-700 font-medium text-sm">
+                                Boshlash <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                <div class="flex items-center justify-between mt-8">
+                    <div class="text-gray-600">
+                        1-20 of {{ articles|length }} moddalar
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg">1</button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                        <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tab -->
+            <div id="progress-tab" class="tab-content hidden">
+                <div class="text-center py-12">
+                    <div class="w-32 h-32 mx-auto mb-6">
+                        <svg class="w-32 h-32">
+                            <circle cx="64" cy="64" r="56" stroke="#e5e7eb" stroke-width="8" fill="none"></circle>
+                            <circle cx="64" cy="64" r="56" stroke="#8b5cf6" stroke-width="8" fill="none" 
+                                    stroke-dasharray="351.86" stroke-dashoffset="351.86" class="progress-ring"></circle>
+                        </svg>
+                        <div class="text-3xl font-bold text-gray-800 -mt-20">0%</div>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Progressingiz hali yo'q</h3>
+                    <p class="text-gray-600 mb-6">Moddalarni o'rganishni boshlang va progressingizni kuzatib boring</p>
+                    <button onclick="showTab('articles')" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-play mr-2"></i>O'qishni boshlash
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tests Tab -->
+            <div id="tests-tab" class="tab-content hidden">
+                <div class="text-center py-12">
+                    <i class="fas fa-clipboard-check text-6xl text-gray-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Testlar hali mavjud emas</h3>
+                    <p class="text-gray-600 mb-6">Avval moddalarni o'rganing, keyin testlarni topshiring</p>
+                    <button onclick="showTab('articles')" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Moddalarga o'tish
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resources Tab -->
+            <div id="resources-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-file-pdf text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Kodeks PDF</h4>
+                                <p class="text-sm text-gray-500">To'liq matn</p>
+                            </div>
+                        </div>
+                        <button class="w-full bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Yuklab olish
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-video text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Video darslar</h4>
+                                <p class="text-sm text-gray-500">12 ta video</p>
+                            </div>
+                        </div>
+                        <button class="w-full bg-green-50 text-green-600 py-2 rounded-lg hover:bg-green-100 transition-colors">
+                            <i class="fas fa-play mr-2"></i>Ko'rish
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-headphones text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Audio darslar</h4>
+                                <p class="text-sm text-gray-500">8 ta audio</p>
+                            </div>
+                        </div>
+                        <button class="w-full bg-purple-50 text-purple-600 py-2 rounded-lg hover:bg-purple-100 transition-colors">
+                            <i class="fas fa-play mr-2"></i>Tinglash
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Path -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-route mr-2"></i>O'quv yo'nalishi
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800">Kirish</h4>
+                        <p class="text-sm text-gray-600">Fan bilan tanishuv va asosiy tushunchalar</p>
+                    </div>
+                    <span class="text-sm text-green-600 font-medium">Bajarilgan</span>
+                </div>
+                
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-play text-purple-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800">Asosiy moddalar</h4>
+                        <p class="text-sm text-gray-600">Eng muhim moddalarni o'rganish</p>
+                    </div>
+                    <span class="text-sm text-purple-600 font-medium">Javoban</span>
+                </div>
+                
+                <div class="flex items-center opacity-50">
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-500">Amaliyot</h4>
+                        <p class="text-sm text-gray-400">Real vaziyatlar va keyslar</p>
+                    </div>
+                    <span class="text-sm text-gray-400">Qulflangan</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-20 right-4 z-50 max-w-sm">
+                {% for category, message in messages %}
+                    <div class="mb-2 p-4 rounded-lg shadow-lg {% if category == 'error' %}bg-red-100 text-red-800{% elif category == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+        }
+        
+        function openArticle(articleId, codeName) {
+            window.location.href = `/article/${codeName}/${articleId}`;
+        }
+    </script>
+</body>
+</html>

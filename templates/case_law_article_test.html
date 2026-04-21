@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Case-Law Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .navbar-blur {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .option-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        .option-card.correct {
+            border-color: #10b981;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%);
+        }
+        
+        .option-card.incorrect {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar-blur sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-balance-scale text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-xl text-gray-800">Case-Law</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>Bosh sahifa
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-book mr-2"></i>Fanlar
+                    </a>
+                    <a href="{{ url_for('legal_map') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-map mr-2"></i>Xarita
+                    </a>
+                    {% if session.get('is_teacher') %}
+                    <a href="{{ url_for('teacher_panel') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>Panel
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-gray-700 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                            <img src="{{ session.avatar }}" alt="Avatar" class="user-avatar">
+                            <span class="font-medium">{{ session.first_name }}</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                    </div>
+                    
+                    <a href="{{ url_for('logout') }}" class="text-gray-700 hover:text-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Test Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg p-8 mb-8 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">{{ test_data.title }}</h1>
+                    <p class="text-white/90">Moddani chuqurroq o'rganish uchun test</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold mb-2">{{ test_data.questions|length }}</div>
+                    <div class="text-white/80">Savollar</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-800">Test progress</h3>
+                <span class="text-sm text-gray-600"><span id="currentQuestion">1</span> / {{ test_data.questions|length }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progressBar" class="bg-gradient-to-r from-purple-600 to-blue-600 h-3 rounded-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+        </div>
+
+        <!-- Test Content -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div id="testContainer">
+                {% for question in test_data.questions %}
+                <div class="question-container" data-question-id="{{ question.id }}" {% if not loop.first %}style="display: none;"{% endif %}>
+                    <div class="mb-8">
+                        <div class="flex items-center mb-6">
+                            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                <span class="text-purple-600 font-bold">{{ loop.index }}</span>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800">{{ question.question }}</h3>
+                        </div>
+                        
+                        {% if question.type == 'multiple_choice' %}
+                        <div class="space-y-4">
+                            {% for option in question.options %}
+                            <div class="option-card border-2 border-gray-200 rounded-lg p-4" onclick="selectOption({{ question.id }}, {{ loop.index0 }}, this)">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                                        <div class="w-3 h-3 bg-purple-600 rounded-full" style="display: none;"></div>
+                                    </div>
+                                    <span class="text-gray-800">{{ option }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        {% elif question.type == 'true_false' %}
+                        <div class="space-y-4">
+                            <div class="option-card border-2 border-gray-200 rounded-lg p-4" onclick="selectOption({{ question.id }}, 'true', this)">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                                        <div class="w-3 h-3 bg-purple-600 rounded-full" style="display: none;"></div>
+                                    </div>
+                                    <span class="text-gray-800">To'g'ri</span>
+                                </div>
+                            </div>
+                            <div class="option-card border-2 border-gray-200 rounded-lg p-4" onclick="selectOption({{ question.id }}, 'false', this)">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                                        <div class="w-3 h-3 bg-purple-600 rounded-full" style="display: none;"></div>
+                                    </div>
+                                    <span class="text-gray-800">Noto'g'ri</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% elif question.type == 'multiple_answer' %}
+                        <div class="space-y-4">
+                            {% for option in question.options %}
+                            <div class="option-card border-2 border-gray-200 rounded-lg p-4" onclick="toggleMultipleOption({{ question.id }}, {{ loop.index0 }}, this)">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 border-2 border-gray-300 rounded mr-4 flex items-center justify-center">
+                                        <div class="w-3 h-3 bg-purple-600 rounded" style="display: none;"></div>
+                                    </div>
+                                    <span class="text-gray-800">{{ option }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-8">
+                <button id="prevBtn" onclick="previousQuestion()" class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fas fa-arrow-left mr-2"></i>Orqaga
+                </button>
+                
+                <div class="flex space-x-2">
+                    {% for question in test_data.questions %}
+                    <button onclick="goToQuestion({{ loop.index }})" class="w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-purple-600 transition-colors question-dot" data-question="{{ loop.index }}">
+                        {{ loop.index }}
+                    </button>
+                    {% endfor %}
+                </div>
+                
+                <button id="nextBtn" onclick="nextQuestion()" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                    Keyingi<i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Submit Button (only shown on last question) -->
+            <div id="submitSection" class="hidden mt-8 text-center">
+                <button onclick="submitTest()" class="px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-lg font-semibold">
+                    <i class="fas fa-check-circle mr-2"></i>Testni yakunlash
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section (hidden initially) -->
+        <div id="resultsSection" class="hidden">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div class="mb-8">
+                    <div class="w-32 h-32 mx-auto mb-6">
+                        <div class="w-32 h-32 rounded-full border-8 border-gray-200 flex items-center justify-center">
+                            <div id="scoreCircle" class="text-4xl font-bold text-gray-800">0%</div>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Test yakunlandi!</h2>
+                    <p class="text-gray-600 mb-6">Sizning natijangiz:</p>
+                    <div id="scoreDetails" class="text-lg text-gray-700"></div>
+                </div>
+                
+                <div class="flex justify-center space-x-4">
+                    <button onclick="reviewAnswers()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-eye mr-2"></i>Javoblarni ko'rish
+                    </button>
+                    <button onclick="goToDashboard()" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                        <i class="fas fa-home mr-2"></i>Dashboardga qaytish
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestionIndex = 0;
+        const totalQuestions = {{ test_data.questions|length }};
+        let answers = {};
+        const correctAnswers = {
+            {% for question in test_data.questions %}
+            {{ question.id }}: {{ question.correct|tojson }},
+            {% endfor %}
+        };
+
+        function selectOption(questionId, optionIndex, element) {
+            // Remove previous selection
+            const container = element.closest('.question-container');
+            const options = container.querySelectorAll('.option-card');
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+                opt.querySelector('.w-3, .w-3')?.setAttribute('style', 'display: none;');
+            });
+            
+            // Add selection to clicked option
+            element.classList.add('selected');
+            element.querySelector('.w-3, .w-3')?.setAttribute('style', 'display: block;');
+            
+            // Store answer
+            answers[questionId] = optionIndex;
+        }
+
+        function toggleMultipleOption(questionId, optionIndex, element) {
+            element.classList.toggle('selected');
+            const dot = element.querySelector('.w-3, .w-3');
+            dot.style.display = element.classList.contains('selected') ? 'block' : 'none';
+            
+            // Store multiple answers
+            if (!answers[questionId]) {
+                answers[questionId] = [];
+            }
+            
+            if (element.classList.contains('selected')) {
+                if (!answers[questionId].includes(optionIndex)) {
+                    answers[questionId].push(optionIndex);
+                }
+            } else {
+                answers[questionId] = answers[questionId].filter(i => i !== optionIndex);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < totalQuestions - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        function goToQuestion(index) {
+            showQuestion(index - 1);
+        }
+
+        function showQuestion(index) {
+            // Hide current question
+            document.querySelectorAll('.question-container').forEach(q => {
+                q.style.display = 'none';
+            });
+            
+            // Show new question
+            const questions = document.querySelectorAll('.question-container');
+            questions[index].style.display = 'block';
+            
+            currentQuestionIndex = index;
+            
+            // Update progress
+            updateProgress();
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').style.display = index === totalQuestions - 1 ? 'none' : 'block';
+            document.getElementById('submitSection').style.display = index === totalQuestions - 1 ? 'block' : 'none';
+            
+            // Update question dots
+            document.querySelectorAll('.question-dot').forEach((dot, i) => {
+                if (i === index) {
+                    dot.classList.add('bg-purple-600', 'text-white');
+                    dot.classList.remove('border-gray-300');
+                } else {
+                    dot.classList.remove('bg-purple-600', 'text-white');
+                    dot.classList.add('border-gray-300');
+                }
+            });
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+        }
+
+        function submitTest() {
+            // Calculate score
+            let correct = 0;
+            for (const [questionId, userAnswer] of Object.entries(answers)) {
+                const correctAnswer = correctAnswers[questionId];
+                if (Array.isArray(correctAnswer)) {
+                    // Multiple answer question
+                    if (Array.isArray(userAnswer) && 
+                        userAnswer.length === correctAnswer.length &&
+                        userAnswer.every(ans => correctAnswer.includes(ans))) {
+                        correct++;
+                    }
+                } else {
+                    // Single answer question
+                    if (userAnswer === correctAnswer) {
+                        correct++;
+                    }
+                }
+            }
+            
+            const score = Math.round((correct / totalQuestions) * 100);
+            
+            // Show results
+            document.getElementById('testContainer').parentElement.style.display = 'none';
+            document.getElementById('resultsSection').classList.remove('hidden');
+            document.getElementById('scoreCircle').textContent = score + '%';
+            document.getElementById('scoreDetails').innerHTML = `
+                <div class="text-3xl font-bold text-green-600 mb-2">${score}%</div>
+                <div class="text-gray-600">${correct} / ${totalQuestions} to'g'ri javob</div>
+            `;
+            
+            // Send results to server
+            fetch('/submit_test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    article_id: '{{ article_id }}',
+                    answers: answers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Test results saved:', data);
+            })
+            .catch(error => {
+                console.error('Error saving test results:', error);
+            });
+        }
+
+        function reviewAnswers() {
+            // Show correct answers
+            document.querySelectorAll('.question-container').forEach((container, index) => {
+                const questionId = container.dataset.questionId;
+                const correctAnswer = correctAnswers[questionId];
+                const userAnswer = answers[questionId];
+                
+                const options = container.querySelectorAll('.option-card');
+                options.forEach((option, optionIndex) => {
+                    if (Array.isArray(correctAnswer)) {
+                        // Multiple answer
+                        if (correctAnswer.includes(optionIndex)) {
+                            option.classList.add('correct');
+                        }
+                        if (userAnswer && userAnswer.includes(optionIndex) && !correctAnswer.includes(optionIndex)) {
+                            option.classList.add('incorrect');
+                        }
+                    } else {
+                        // Single answer
+                        if (optionIndex === correctAnswer) {
+                            option.classList.add('correct');
+                        }
+                        if (userAnswer === optionIndex && optionIndex !== correctAnswer) {
+                            option.classList.add('incorrect');
+                        }
+                    }
+                });
+            });
+            
+            // Show test container again
+            document.getElementById('testContainer').parentElement.style.display = 'block';
+            document.getElementById('resultsSection').classList.add('hidden');
+            
+            // Show first question
+            showQuestion(0);
+        }
+
+        function goToDashboard() {
+            window.location.href = '{{ url_for("dashboard") }}';
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

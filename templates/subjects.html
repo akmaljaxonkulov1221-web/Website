@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Fanlar - Case-Law Interactive{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Fanlar</h1>
+        <p class="mt-2 text-lg text-gray-600">Yuridik fanlarni interaktiv o'rganing</p>
+    </div>
+
+    <!-- Subjects Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for subject in subjects %}
+        <div class="group">
+            <a href="{{ url_for('subject_detail', subject_id=subject.id) }}" 
+               class="block bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+                <!-- Header with color -->
+                <div class="h-24 flex items-center justify-center" style="background: linear-gradient(135deg, {{ subject.color or '#6B7280' }} 0%, {{ subject.color or '#6B7280' }}dd 100%);">
+                    {% if subject.icon %}
+                    <i class="fas fa-{{ subject.icon }} text-5xl text-white"></i>
+                    {% else %}
+                    <i class="fas fa-book text-5xl text-white"></i>
+                    {% endif %}
+                </div>
+                
+                <!-- Content -->
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        {{ subject.name }}
+                    </h3>
+                    <p class="text-gray-600 mb-4 line-clamp-3">
+                        {{ subject.description or 'Tavsif mavjud emas' }}
+                    </p>
+                    
+                    <!-- Stats -->
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                        <span><i class="fas fa-book-open mr-1"></i>{{ subject.articles|length }} modda</span>
+                        <span><i class="fas fa-balance-scale mr-1"></i>{{ subject.cases|length if subject.cases else 0 }} ish</span>
+                    </div>
+                    
+                    <!-- Progress indicator -->
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%;"></div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-center text-indigo-600 font-medium">
+                        <span>Fanni boshlash</span>
+                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+        
+        <!-- Add new subject card for teachers -->
+        {% if session.is_teacher %}
+        <div class="group">
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-dashed border-gray-300 hover:border-indigo-400">
+                <div class="h-24 flex items-center justify-center bg-gray-50">
+                    <i class="fas fa-plus-circle text-5xl text-gray-400 group-hover:text-indigo-600 transition-colors"></i>
+                </div>
+                <div class="p-6 text-center">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">
+                        Yangi fan qo'shish
+                    </h3>
+                    <p class="text-gray-600 mb-4">Yangi yuridik fan yaratish</p>
+                    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Qo'shish
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Learning Statistics -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">O'rganish statistikasi</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-indigo-600">{{ subjects|length }}</div>
+                <div class="text-sm text-gray-500">Jami fanlar</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600">{{ subjects|sum(attribute='articles')|length if subjects|sum(attribute='articles') else 0 }}</div>
+                <div class="text-sm text-gray-500">Moddalar</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600">0</div>
+                <div class="text-sm text-gray-500">O'rganilgan</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-orange-600">0%</div>
+                <div class="text-sm text-gray-500">Progress</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Animate progress bars on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.bg-indigo-600.h-2');
+    progressBars.forEach((bar, index) => {
+        setTimeout(() => {
+            bar.style.width = Math.random() * 60 + 20 + '%'; // Random progress for demo
+        }, index * 200);
+    });
+});
+</script>
+{% endblock %}

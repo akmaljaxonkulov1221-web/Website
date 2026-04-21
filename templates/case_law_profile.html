@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Case-Law Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .navbar-blur {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .achievement-badge {
+            transition: all 0.3s ease;
+        }
+        
+        .achievement-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar-blur sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-balance-scale text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-xl text-gray-800">Case-Law</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>Bosh sahifa
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-book mr-2"></i>Fanlar
+                    </a>
+                    <a href="{{ url_for('legal_map') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-map mr-2"></i>Xarita
+                    </a>
+                    {% if session.get('is_teacher') %}
+                    <a href="{{ url_for('teacher_panel') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>Panel
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-gray-700 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                            <img src="{{ session.avatar }}" alt="Avatar" class="user-avatar">
+                            <span class="font-medium">{{ session.first_name }}</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                    </div>
+                    
+                    <a href="{{ url_for('logout') }}" class="text-gray-700 hover:text-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Profile Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg p-8 mb-8 text-white">
+            <div class="flex items-center">
+                <img src="{{ session.avatar }}" alt="Avatar" class="w-24 h-24 rounded-full border-4 border-white mr-6">
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold mb-2">{{ session.first_name }} {{ session.last_name }}</h1>
+                    <p class="text-white/90 mb-4">{{ session.role }}</p>
+                    <div class="flex items-center space-x-6">
+                        <div>
+                            <div class="text-2xl font-bold">{{ user_progress.completed_articles or 0 }}</div>
+                            <div class="text-white/80">O'rganilgan moddalar</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold">{{ user_progress.completed_tests or 0 }}</div>
+                            <div class="text-white/80">Bajarilgan testlar</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold">{{ user_progress.total_score or 0 }}%</div>
+                            <div class="text-white/80">O'rtacha ball</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold">24.5</div>
+                            <div class="text-white/80">Soat</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="bg-white/20 backdrop-blur-lg px-6 py-3 rounded-lg hover:bg-white/30 transition-colors">
+                    <i class="fas fa-edit mr-2"></i>Profilni tahrirlash
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Progress Overview -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-chart-line mr-2"></i>Progress tahlili
+                    </h3>
+                    <div class="mb-6">
+                        <canvas id="progressChart" height="100"></canvas>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600">{{ ((user_progress.completed_articles or 0) / 3166 * 100)|round|int }}%</div>
+                            <div class="text-sm text-gray-600">Umumiy progress</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">{{ user_progress.completed_tests or 0 }}</div>
+                            <div class="text-sm text-gray-600">Testlar soni</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">{{ user_progress.total_score or 0 }}%</div>
+                            <div class="text-sm text-gray-600">O'rtacha ball</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-yellow-600">5</div>
+                            <div class="text-sm text-gray-600">Kunlik seriya</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-history mr-2"></i>So'nggi faoliyat
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-check text-green-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Jinoyat kodeksi - 168-modda</div>
+                                    <div class="text-sm text-gray-600">Firibgarlik moddasini o'rganib tugatdingiz</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">2 soat oldin</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-clipboard-check text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Test - Fuqarolik huquqi</div>
+                                    <div class="text-sm text-gray-600">Testni 85% bilan yakunladingiz</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">5 soat oldin</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-play text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Mehnat kodeksi - 1-bob</div>
+                                    <div class="text-sm text-gray-600">Asosiy qoidalarni o'rganishni boshladingiz</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">1 kun oldin</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-trophy text-yellow-600"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-gray-800">Yutuq qo'lga kiritildi</div>
+                                    <div class="text-sm text-gray-600">5 kunlik o'qish seriyasi</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-500">2 kun oldin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Achievements -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-trophy mr-2"></i>Yutuqlar
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="achievement-badge text-center">
+                            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-fire text-yellow-600 text-xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-600">5 kunlik seriya</div>
+                        </div>
+                        
+                        <div class="achievement-badge text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-book text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-600">Birinchi modda</div>
+                        </div>
+                        
+                        <div class="achievement-badge text-center">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-graduation-cap text-green-600 text-xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-600">Birinchi test</div>
+                        </div>
+                        
+                        <div class="achievement-badge text-center opacity-50">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-star text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-400">Qulflangan</div>
+                        </div>
+                        
+                        <div class="achievement-badge text-center opacity-50">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-medal text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-400">Qulflangan</div>
+                        </div>
+                        
+                        <div class="achievement-badge text-center opacity-50">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-crown text-gray-400 text-xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-400">Qulflangan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subject Progress -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-book-open mr-2"></i>Fanlar bo'yicha progress
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Jinoyat huquqi</span>
+                                <span class="text-sm text-gray-600">35%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Fuqarolik huquqi</span>
+                                <span class="text-sm text-gray-600">28%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 28%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Mehnat huquqi</span>
+                                <span class="text-sm text-gray-600">42%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 42%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Oila huquqi</span>
+                                <span class="text-sm text-gray-600">18%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 18%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Ma'muriy huquq</span>
+                                <span class="text-sm text-gray-600">25%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 25%"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-700">Yer huquqi</span>
+                                <span class="text-sm text-gray-600">15%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-brown-500 h-2 rounded-full" style="width: 15%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Streaks -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-fire mr-2"></i>O'qish seriyasi
+                    </h3>
+                    <div class="text-center mb-4">
+                        <div class="text-4xl font-bold text-orange-600 mb-2">5</div>
+                        <div class="text-gray-600">Kun ketma-ket</div>
+                    </div>
+                    <div class="flex justify-center space-x-1">
+                        <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs">D</div>
+                        <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs">S</div>
+                        <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs">C</div>
+                        <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs">C</div>
+                        <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-xs">P</div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs">J</div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-xs">S</div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-gray-600">Qayd etishda davom eting!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize progress chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Dushanba', 'Seshanba', 'Chorshanba', 'Payshanba', 'Juma', 'Shanba', 'Yakshanba'],
+                datasets: [{
+                    label: 'O\'rganilgan moddalar',
+                    data: [5, 8, 12, 15, 18, 22, 25],
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Test ballari',
+                    data: [75, 80, 85, 78, 90, 85, 88],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

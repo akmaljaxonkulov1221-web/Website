@@ -1,0 +1,18 @@
+{
+    "domain_distribution": {
+        "Jinoyat kodeksi": 439,
+        "Fuqarolik kodeksi": 1225,
+        "Oila kodeksi": 296,
+        "Mehnat kodeksi": 391,
+        "Ma'muriy javobgarlik kodeksi": 426,
+        "Yer kodeksi": 389
+    },
+    "punishment_severity_distribution": {
+        "extreme": 15,
+        "high": 62,
+        "medium": 156,
+        "light": 206
+    },
+    "total_articles_analyzed": 3166,
+    "analysis_date": "2026-04-21"
+}

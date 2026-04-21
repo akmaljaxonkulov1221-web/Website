@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huquqiy Xarita - Case-Law Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .navbar-blur {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .map-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .code-node {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .code-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .connection-line {
+            stroke: #667eea;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.6;
+        }
+        
+        .article-node {
+            transition: all 0.3s ease;
+        }
+        
+        .article-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar-blur sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-balance-scale text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-xl text-gray-800">Case-Law</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-home mr-2"></i>Bosh sahifa
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-book mr-2"></i>Fanlar
+                    </a>
+                    <a href="{{ url_for('legal_map') }}" class="text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-map mr-2"></i>Xarita
+                    </a>
+                    {% if session.get('is_teacher') %}
+                    <a href="{{ url_for('teacher_panel') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>Panel
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-gray-700 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                            <img src="{{ session.avatar }}" alt="Avatar" class="user-avatar">
+                            <span class="font-medium">{{ session.first_name }}</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                    </div>
+                    
+                    <a href="{{ url_for('logout') }}" class="text-gray-700 hover:text-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-map mr-3"></i>Huquqiy Xarita
+            </h1>
+            <p class="text-xl text-gray-600">Barcha kodekslar va moddalarning o'zaro bog'liqliklari</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Xarita nazorati</h3>
+                    <p class="text-gray-600">Kodekslar va moddalarni vizual ko'rish</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button onclick="toggleView('codes')" class="px-4 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors">
+                        <i class="fas fa-book mr-2"></i>Kodekslar
+                    </button>
+                    <button onclick="toggleView('articles')" class="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-file-alt mr-2"></i>Moddalar
+                    </button>
+                    <button onclick="toggleView('connections')" class="px-4 py-2 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors">
+                        <i class="fas fa-link mr-2"></i>Bog'liqliklar
+                    </button>
+                    <button onclick="resetMap()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-redo mr-2"></i>Qayta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="map-container rounded-lg relative" id="mapContainer">
+                <!-- SVG for connections -->
+                <svg class="absolute inset-0 w-full h-full" id="connectionsSvg">
+                    <!-- Connections will be drawn here -->
+                </svg>
+                
+                <!-- Code Nodes -->
+                <div class="absolute top-10 left-10 code-node" id="code-1">
+                    <div class="bg-red-500 text-white rounded-lg p-4 shadow-lg">
+                        <i class="fas fa-gavel text-2xl mb-2"></i>
+                        <h4 class="font-bold">Jinoyat Kodeksi</h4>
+                        <p class="text-sm">404 modda</p>
+                    </div>
+                </div>
+                
+                <div class="absolute top-10 right-10 code-node" id="code-2">
+                    <div class="bg-blue-500 text-white rounded-lg p-4 shadow-lg">
+                        <i class="fas fa-handshake text-2xl mb-2"></i>
+                        <h4 class="font-bold">Fuqarolik Kodeksi</h4>
+                        <p class="text-sm">1200 modda</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-10 left-10 code-node" id="code-3">
+                    <div class="bg-green-500 text-white rounded-lg p-4 shadow-lg">
+                        <i class="fas fa-briefcase text-2xl mb-2"></i>
+                        <h4 class="font-bold">Mehnat Kodeksi</h4>
+                        <p class="text-sm">581 modda</p>
+                    </div>
+                </div>
+                
+                <div class="absolute bottom-10 right-10 code-node" id="code-4">
+                    <div class="bg-yellow-500 text-white rounded-lg p-4 shadow-lg">
+                        <i class="fas fa-home text-2xl mb-2"></i>
+                        <h4 class="font-bold">Oila Kodeksi</h4>
+                        <p class="text-sm">220 modda</p>
+                    </div>
+                </div>
+                
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 code-node" id="code-5">
+                    <div class="bg-purple-500 text-white rounded-lg p-4 shadow-lg">
+                        <i class="fas fa-shield-alt text-2xl mb-2"></i>
+                        <h4 class="font-bold">Ma'muriy Kodeks</h4>
+                        <p class="text-sm">651 modda</p>
+                    </div>
+                </div>
+                
+                <div class="absolute top-1/3 left-1/3 code-node" id="code-6">
+                    <div class="bg-brown-500 text-white rounded-lg p-4 shadow-lg">
+                        <i class="fas fa-mountain text-2xl mb-2"></i>
+                        <h4 class="font-bold">Yer Kodeksi</h4>
+                        <p class="text-sm">110 modda</p>
+                    </div>
+                </div>
+                
+                <!-- Article Nodes (hidden by default) -->
+                <div class="article-node absolute top-20 left-20 hidden" id="article-1">
+                    <div class="bg-white border-2 border-red-500 rounded-lg p-3 shadow-lg">
+                        <h5 class="font-semibold text-sm">169-modda</h5>
+                        <p class="text-xs text-gray-600">O'g'rilik</p>
+                    </div>
+                </div>
+                
+                <div class="article-node absolute top-20 right-20 hidden" id="article-2">
+                    <div class="bg-white border-2 border-blue-500 rounded-lg p-3 shadow-lg">
+                        <h5 class="font-semibold text-sm">1-modda</h5>
+                        <p class="text-xs text-gray-600">Fuqarolarning huquqiy tengligi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="fas fa-info-circle mr-2"></i>Legend
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                    <span class="text-sm text-gray-700">Jinoyat huquqi</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                    <span class="text-sm text-gray-700">Fuqarolik huquqi</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                    <span class="text-sm text-gray-700">Mehnat huquqi</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+                    <span class="text-sm text-gray-700">Oila huquqi</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+                    <span class="text-sm text-gray-700">Ma'muriy huquq</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-brown-500 rounded mr-2"></div>
+                    <span class="text-sm text-gray-700">Yer huquqi</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-book mr-2"></i>Kodekslar
+                </h3>
+                <div class="text-3xl font-bold text-gray-800 mb-2">6</div>
+                <p class="text-gray-600">Barcha asosiy kodekslar</p>
+                <div class="mt-4 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Jinoyat:</span>
+                        <span class="font-medium">404 modda</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Fuqarolik:</span>
+                        <span class="font-medium">1200 modda</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Mehnat:</span>
+                        <span class="font-medium">581 modda</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-link mr-2"></i>Bog'liqliklar
+                </h3>
+                <div class="text-3xl font-bold text-gray-800 mb-2">24</div>
+                <p class="text-gray-600">Kodekslar o'rtasidagi aloqalar</p>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm text-green-600">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        <span>Barcha bog'liqliklar ko'rsatilgan</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-route mr-2"></i>O'quv yo'llari
+                </h3>
+                <div class="text-3xl font-bold text-gray-800 mb-2">8</div>
+                <p class="text-gray-600">Tavsiya etilgan o'quv yo'llari</p>
+                <div class="mt-4 space-y-2">
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                        Boshlang'ich (3 ta yo'l)
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                        Professional (5 ta yo'l)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'codes';
+        
+        function toggleView(view) {
+            currentView = view;
+            updateMap();
+        }
+        
+        function updateMap() {
+            const articleNodes = document.querySelectorAll('.article-node');
+            const connectionsSvg = document.getElementById('connectionsSvg');
+            
+            if (currentView === 'articles') {
+                // Show article nodes
+                articleNodes.forEach(node => node.classList.remove('hidden'));
+                // Add more article nodes
+                addMoreArticleNodes();
+            } else {
+                // Hide article nodes
+                articleNodes.forEach(node => node.classList.add('hidden'));
+            }
+            
+            if (currentView === 'connections') {
+                // Draw connections
+                drawConnections();
+            } else {
+                // Clear connections
+                connectionsSvg.innerHTML = '';
+            }
+        }
+        
+        function addMoreArticleNodes() {
+            const container = document.getElementById('mapContainer');
+            
+            // Add more article nodes dynamically
+            const articles = [
+                {id: 3, code: 1, title: '164-modda', desc: 'O\'g\'rilik tushunchasi', top: 30, left: 30},
+                {id: 4, code: 1, title: '170-modda', desc: 'Talonchilik', top: 40, left: 20},
+                {id: 5, code: 2, title: '2-modda', desc: 'Fuqarolarning huquqlari', top: 30, right: 30},
+                {id: 6, code: 3, title: '5-modda', desc: 'Mehnat shartnomasi', bottom: 30, left: 30},
+            ];
+            
+            articles.forEach(article => {
+                const node = document.createElement('div');
+                node.className = 'article-node absolute';
+                node.id = `article-${article.id}`;
+                node.style.top = article.top ? `${article.top}%` : '';
+                node.style.bottom = article.bottom ? `${article.bottom}%` : '';
+                node.style.left = article.left ? `${article.left}%` : '';
+                node.style.right = article.right ? `${article.right}%` : '';
+                
+                const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'brown'];
+                const color = colors[article.code - 1];
+                
+                node.innerHTML = `
+                    <div class="bg-white border-2 border-${color}-500 rounded-lg p-3 shadow-lg">
+                        <h5 class="font-semibold text-sm">${article.title}</h5>
+                        <p class="text-xs text-gray-600">${article.desc}</p>
+                    </div>
+                `;
+                
+                container.appendChild(node);
+            });
+        }
+        
+        function drawConnections() {
+            const svg = document.getElementById('connectionsSvg');
+            const connections = [
+                {from: 'code-1', to: 'code-2'},
+                {from: 'code-1', to: 'code-5'},
+                {from: 'code-2', to: 'code-3'},
+                {from: 'code-2', to: 'code-4'},
+                {from: 'code-3', to: 'code-4'},
+                {from: 'code-5', to: 'code-6'},
+            ];
+            
+            connections.forEach(conn => {
+                const fromElement = document.getElementById(conn.from);
+                const toElement = document.getElementById(conn.to);
+                
+                if (fromElement && toElement) {
+                    const fromRect = fromElement.getBoundingClientRect();
+                    const toRect = toElement.getBoundingClientRect();
+                    const containerRect = svg.getBoundingClientRect();
+                    
+                    const x1 = fromRect.left + fromRect.width / 2 - containerRect.left;
+                    const y1 = fromRect.top + fromRect.height / 2 - containerRect.top;
+                    const x2 = toRect.left + toRect.width / 2 - containerRect.left;
+                    const y2 = toRect.top + toRect.height / 2 - containerRect.top;
+                    
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('class', 'connection-line');
+                    
+                    svg.appendChild(line);
+                }
+            });
+        }
+        
+        function resetMap() {
+            currentView = 'codes';
+            updateMap();
+        }
+        
+        // Add click handlers to code nodes
+        document.querySelectorAll('.code-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const codeId = this.id;
+                // Show related articles or navigate to code detail
+                console.log('Clicked code:', codeId);
+            });
+        });
+        
+        // Add click handlers to article nodes
+        document.querySelectorAll('.article-node').forEach(node => {
+            node.addEventListener('click', function() {
+                const articleId = this.id;
+                // Navigate to article detail
+                console.log('Clicked article:', articleId);
+            });
+        });
+    </script>
+</body>
+</html>

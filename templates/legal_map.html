@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Huquqiy xarita - Case-Law Interactive{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Huquqiy xarita</h1>
+        <p class="mt-2 text-lg text-gray-600">Moddalarning o'zaro bog'liqligi va tuzilishi</p>
+    </div>
+
+    <!-- Interactive Map -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="mb-4 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-900">Interaktiv xarita</h2>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors text-sm">
+                    <i class="fas fa-search-plus mr-1"></i>Kattalashtirish
+                </button>
+                <button class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors text-sm">
+                    <i class="fas fa-search-minus mr-1"></i>Kichraytirish
+                </button>
+                <button class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors text-sm">
+                    <i class="fas fa-expand mr-1"></i>To'liq ekran
+                </button>
+            </div>
+        </div>
+        
+        <!-- Map Container -->
+        <div id="legal-map-container" class="bg-gray-50 rounded-lg p-8 min-h-[600px] relative">
+            <!-- SVG Network Diagram -->
+            <svg id="network-svg" class="w-full h-full" viewBox="0 0 1200 600">
+                <!-- Define styles -->
+                <defs>
+                    <style>
+                        .subject-node { fill: #6366f1; stroke: #4f46e5; stroke-width: 2; }
+                        .article-node { fill: #10b981; stroke: #059669; stroke-width: 2; }
+                        .connection { stroke: #9ca3af; stroke-width: 2; fill: none; }
+                        .node-text { fill: white; font-size: 12px; font-weight: bold; }
+                        .article-text { fill: white; font-size: 10px; }
+                    </style>
+                </defs>
+                
+                <!-- Connections (drawn first so they appear behind nodes) -->
+                {% for connection in map_data.connections %}
+                <line class="connection" 
+                      x1="{{ 200 + (connection.from * 150) % 1000 }}" 
+                      y1="{{ 100 + (connection.from * 100) % 400 }}" 
+                      x2="{{ 200 + (connection.to * 150) % 1000 }}" 
+                      y2="{{ 100 + (connection.to * 100) % 400 }}"
+                      stroke-dasharray="{% if connection.type == 'similar' %}5,5{% else %}none{% endif %}" />
+                {% endfor %}
+                
+                <!-- Subject Nodes -->
+                {% for subject in map_data.subjects %}
+                <g class="subject-group" transform="translate({{ 200 + subject.id * 300 }}, 50)">
+                    <circle class="subject-node" r="40" />
+                    <text class="node-text" x="0" y="5" text-anchor="middle">{{ subject.name[:8] }}</text>
+                </g>
+                {% endfor %}
+                
+                <!-- Article Nodes -->
+                {% for article in map_data.articles %}
+                <g class="article-group" transform="translate({{ 100 + article.id * 80 }}, {{ 200 + article.subject_id * 150 }})">
+                    <circle class="article-node" r="25" />
+                    <text class="article-text" x="0" y="3" text-anchor="middle">{{ article.number[:6] }}</text>
+                </g>
+                {% endfor %}
+            </svg>
+            
+            <!-- Legend -->
+            <div class="absolute top-4 right-4 bg-white rounded-lg shadow-md p-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-2">Legend</h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-indigo-600 rounded-full mr-2"></div>
+                        <span>Fan</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-600 rounded-full mr-2"></div>
+                        <span>Modda</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-0 border-t-2 border-gray-400 mr-2"></div>
+                        <span>Bog'liqlik</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-0 border-t-2 border-gray-400 border-dashed mr-2"></div>
+                        <span>O'xshashlik</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Details -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for subject in map_data.subjects %}
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: {{ subject.color }};">
+                    <i class="fas fa-book text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ subject.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ map_data.articles|selectattr('subject_id', 'equalto', subject.id)|list|length }} modda</p>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                {% for article in map_data.articles if article.subject_id == subject.id %}
+                <a href="{{ url_for('article_detail', article_id=article.id) }}" 
+                   class="flex items-center p-2 text-sm text-gray-600 hover:bg-gray-50 rounded transition-colors">
+                    <i class="fas fa-link text-indigo-600 mr-2"></i>
+                    <span>{{ article.number }} - {{ article.title }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Statistics -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Xarita statistikasi</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-indigo-600">{{ map_data.subjects|length }}</div>
+                <div class="text-sm text-gray-500">Fanlar</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600">{{ map_data.articles|length }}</div>
+                <div class="text-sm text-gray-500">Moddalar</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-purple-600">{{ map_data.connections|length }}</div>
+                <div class="text-sm text-gray-500">Bog'liqliklar</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-orange-600">{{ (map_data.connections|length / map_data.articles|length * 100)|round(1) }}%</div>
+                <div class="text-sm text-gray-500">Bog'lanish darajasi</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const svg = document.getElementById('network-svg');
+    const container = document.getElementById('legal-map-container');
+    
+    // Add interactivity to nodes
+    const subjectNodes = svg.querySelectorAll('.subject-group');
+    const articleNodes = svg.querySelectorAll('.article-group');
+    
+    subjectNodes.forEach(node => {
+        node.style.cursor = 'pointer';
+        node.addEventListener('mouseenter', function() {
+            this.querySelector('circle').style.fill = '#4f46e5';
+            this.querySelector('circle').style.transform = 'scale(1.1)';
+            this.querySelector('circle').style.transition = 'all 0.2s';
+        });
+        node.addEventListener('mouseleave', function() {
+            this.querySelector('circle').style.fill = '#6366f1';
+            this.querySelector('circle').style.transform = 'scale(1)';
+        });
+    });
+    
+    articleNodes.forEach(node => {
+        node.style.cursor = 'pointer';
+        node.addEventListener('mouseenter', function() {
+            this.querySelector('circle').style.fill = '#059669';
+            this.querySelector('circle').style.transform = 'scale(1.1)';
+            this.querySelector('circle').style.transition = 'all 0.2s';
+        });
+        node.addEventListener('mouseleave', function() {
+            this.querySelector('circle').style.fill = '#10b981';
+            this.querySelector('circle').style.transform = 'scale(1)';
+        });
+    });
+    
+    // Zoom functionality
+    let scale = 1;
+    const zoomIn = document.querySelector('button:has(.fa-search-plus)');
+    const zoomOut = document.querySelector('button:has(.fa-search-minus)');
+    
+    if (zoomIn) {
+        zoomIn.addEventListener('click', () => {
+            scale = Math.min(scale * 1.2, 3);
+            svg.style.transform = `scale(${scale})`;
+            svg.style.transition = 'transform 0.3s';
+        });
+    }
+    
+    if (zoomOut) {
+        zoomOut.addEventListener('click', () => {
+            scale = Math.max(scale / 1.2, 0.5);
+            svg.style.transform = `scale(${scale})`;
+            svg.style.transition = 'transform 0.3s';
+        });
+    }
+    
+    // Fullscreen functionality
+    const fullscreenBtn = document.querySelector('button:has(.fa-expand)');
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                container.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

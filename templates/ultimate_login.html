@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirish - Ultimate Legal System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .input-field:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 30%;
+            animation-delay: 4s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="w-full max-w-md">
+            <!-- Logo Section -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
+                    <i class="fas fa-balance-scale text-3xl gradient-text"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white mb-2">Ultimate Legal System</h1>
+                <p class="text-white/80">O'zbekiston Kodekslari - 3166 ta modda</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="glass-morphism rounded-2xl p-8">
+                <form action="{{ url_for('login') }}" method="POST" class="space-y-6">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2"></i>Login
+                        </label>
+                        <input 
+                            id="username" 
+                            name="username" 
+                            type="text" 
+                            required
+                            class="input-field w-full px-4 py-3 rounded-lg bg-white/50 placeholder-gray-500 text-gray-900 focus:outline-none"
+                            placeholder="Loginingizni kiriting"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-lock mr-2"></i>Parol
+                        </label>
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required
+                            class="input-field w-full px-4 py-3 rounded-lg bg-white/50 placeholder-gray-500 text-gray-900 focus:outline-none"
+                            placeholder="Parolingizni kiriting"
+                        >
+                    </div>
+
+                    <div class="flex items-center">
+                        <input 
+                            id="remember" 
+                            name="remember" 
+                            type="checkbox"
+                            class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                        >
+                        <label for="remember" class="ml-2 block text-sm text-gray-700">
+                            Eslab qolish
+                        </label>
+                    </div>
+
+                    <button 
+                        type="submit"
+                        class="btn-gradient w-full py-3 px-4 rounded-lg text-white font-semibold text-lg"
+                    >
+                        <i class="fas fa-sign-in-alt mr-2"></i>
+                        Kirish
+                    </button>
+                </form>
+
+                <!-- Demo Accounts -->
+                <div class="mt-8">
+                    <div class="demo-card rounded-lg p-4">
+                        <h3 class="text-sm font-semibold text-white mb-3">
+                            <i class="fas fa-info-circle mr-2"></i>Demo Hisoblar
+                        </h3>
+                        <div class="space-y-2 text-xs text-white/90">
+                            <div class="flex justify-between items-center">
+                                <span><i class="fas fa-user-shield mr-1"></i>Administrator</span>
+                                <span class="font-mono">admin / admin123</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span><i class="fas fa-user-tie mr-1"></i>Lawyer</span>
+                                <span class="font-mono">lawyer / lawyer123</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span><i class="fas fa-graduation-cap mr-1"></i>Student</span>
+                                <span class="font-mono">student / student123</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="mt-6 text-center">
+                    <div class="flex justify-center space-x-6 text-white/80 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-book mr-1"></i>
+                            <span>3166 Modda</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            <span>Xavfsiz</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            <span>AI Tahlil</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8 text-white/60 text-sm">
+                <p>&copy; 2024 Ultimate Legal System. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-4 right-4 z-50">
+                {% for category, message in messages %}
+                    <div class="glass-morphism rounded-lg p-4 mb-2 {% if category == 'error' %}bg-red-500/20{% else %}bg-green-500/20{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if category == 'error' %}fa-exclamation-circle text-red-500{% else %}fa-check-circle text-green-500{% endif %} mr-3"></i>
+                            <span class="text-gray-800">{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

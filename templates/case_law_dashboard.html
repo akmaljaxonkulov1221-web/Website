@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Case-Law Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem 0;
+        }
+        
+        .navbar-blur {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .subject-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .subject-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .subject-card:hover::before {
+            left: 100%;
+        }
+        
+        .subject-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .badge-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar-blur sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-balance-scale text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold text-xl text-gray-800">Case-Law</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{{ url_for('dashboard') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors {% if request.endpoint == 'dashboard' %}text-purple-600{% endif %}">
+                        <i class="fas fa-home mr-2"></i>Bosh sahifa
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors {% if request.endpoint == 'subjects' %}text-purple-600{% endif %}">
+                        <i class="fas fa-book mr-2"></i>Fanlar
+                    </a>
+                    <a href="{{ url_for('legal_map') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors {% if request.endpoint == 'legal_map' %}text-purple-600{% endif %}">
+                        <i class="fas fa-map mr-2"></i>Xarita
+                    </a>
+                    {% if session.get('is_teacher') %}
+                    <a href="{{ url_for('teacher_panel') }}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors {% if request.endpoint == 'teacher_panel' %}text-purple-600{% endif %}">
+                        <i class="fas fa-chalkboard-teacher mr-2"></i>Panel
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="text-gray-700 hover:text-purple-600 transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center badge-pulse">3</span>
+                        </button>
+                    </div>
+                    
+                    <!-- User Dropdown -->
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-purple-600 transition-colors">
+                            <img src="{{ session.avatar }}" alt="Avatar" class="user-avatar">
+                            <span class="font-medium">{{ session.first_name }}</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Logout -->
+                    <a href="{{ url_for('logout') }}" class="text-gray-700 hover:text-red-600 transition-colors">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-white mb-4">
+                    <i class="fas fa-graduation-cap mr-3"></i>Interaktiv Yuridik O'quv
+                </h1>
+                <p class="text-xl text-white/90 mb-6">
+                    3166 ta modda bilan to'liq o'quv platformasiga xush kelibsiz, {{ session.first_name }}!
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="window.location.href='/subjects'" class="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        <i class="fas fa-play mr-2"></i>O'qishni boshlash
+                    </button>
+                    <button onclick="window.location.href='/legal_map'" class="bg-purple-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
+                        <i class="fas fa-map mr-2"></i>Huquqiy xarita
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-chart-line mr-3"></i>O'quv Progressingiz
+            </h2>
+            <p class="text-gray-600">Sizning yutuqlaringiz va statistikangiz</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="stat-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-book text-purple-600 text-xl"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ user_progress.completed_articles or 0 }}/3166</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-2">{{ user_progress.completed_articles or 0 }}</div>
+                <div class="text-gray-600">O'rganilgan moddalar</div>
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-purple-600 h-2 rounded-full" style="width: {{ ((user_progress.completed_articles or 0) / 3166 * 100)|round|int }}%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clipboard-check text-green-600 text-xl"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ user_progress.completed_tests or 0 }}</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-2">{{ user_progress.completed_tests or 0 }}</div>
+                <div class="text-gray-600">Bajarilgan testlar</div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                        <span class="text-gray-600">Eng yuqori: 95%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-blue-600 text-xl"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">Soat</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-2">24.5</div>
+                <div class="text-gray-600">O'qish vaqti</div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm text-green-600">
+                        <i class="fas fa-arrow-up mr-1"></i>
+                        <span>+2.3 soat</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card bg-white rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-star text-yellow-600 text-xl"></i>
+                    </div>
+                    <span class="text-sm text-gray-500">Ball</span>
+                </div>
+                <div class="text-2xl font-bold text-gray-800 mb-2">{{ user_progress.total_score or 0 }}</div>
+                <div class="text-gray-600">Jami ball</div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-fire text-orange-500 mr-2"></i>
+                        <span class="text-gray-600">5 kunlik seriya</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subjects Section -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-book-open mr-3"></i>Fanlar
+            </h2>
+            <p class="text-gray-600">O'rganishni xohlagan faningizni tanlang</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div onclick="window.location.href='/subject/1'" class="subject-card bg-white rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-red-100 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-gavel text-red-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Jinoyat Huquqi</h3>
+                        <p class="text-gray-600 text-sm">Jinoyat kodeksi</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Jinoyat tarkibi, turlari, jazolari va amaliyotini o'rganing</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">404 modda</span>
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Progress:</span>
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-red-500 h-2 rounded-full" style="width: 35%"></div>
+                            </div>
+                            <span class="text-gray-600">35%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div onclick="window.location.href='/subject/2'" class="subject-card bg-white rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-handshake text-blue-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Fuqarolik Huquqi</h3>
+                        <p class="text-gray-600 text-sm">Fuqarolik kodeksi</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Fuqarolik huquqiy munosabatlari, shartnomalar, meros masalalari</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">1200 modda</span>
+                    <div class="flex items-center text-blue-600">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Progress:</span>
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 28%"></div>
+                            </div>
+                            <span class="text-gray-600">28%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div onclick="window.location.href='/subject/3'" class="subject-card bg-white rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-briefcase text-green-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Mehnat Huquqi</h3>
+                        <p class="text-gray-600 text-sm">Mehnat kodeksi</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Mehnat munosabatlari, ish haqi, mehnat shartnomalari</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">581 modda</span>
+                    <div class="flex items-center text-green-600">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Progress:</span>
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 42%"></div>
+                            </div>
+                            <span class="text-gray-600">42%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div onclick="window.location.href='/subject/4'" class="subject-card bg-white rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-yellow-100 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-home text-yellow-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Oila Huquqi</h3>
+                        <p class="text-gray-600 text-sm">Oila kodeksi</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Nikoh, ajralish, aliment, voyaga yetmaganlar huquqlari</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">220 modda</span>
+                    <div class="flex items-center text-yellow-600">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Progress:</span>
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 18%"></div>
+                            </div>
+                            <span class="text-gray-600">18%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div onclick="window.location.href='/subject/5'" class="subject-card bg-white rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-purple-100 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-shield-alt text-purple-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Ma'muriy Huquq</h3>
+                        <p class="text-gray-600 text-sm">Ma'muriy javobgarlik</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Ma'muriy huqqbuzarliklar, jarimalar, protsessual tartib</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">651 modda</span>
+                    <div class="flex items-center text-purple-600">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Progress:</span>
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 25%"></div>
+                            </div>
+                            <span class="text-gray-600">25%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div onclick="window.location.href='/subject/6'" class="subject-card bg-white rounded-xl p-6 shadow-lg cursor-pointer">
+                <div class="flex items-center mb-4">
+                    <div class="w-16 h-16 bg-brown-100 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-mountain text-brown-600 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Yer Huquqi</h3>
+                        <p class="text-gray-600 text-sm">Yer kodeksi</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Yer munosabatlari, yer foydalanish, yer himoyasi</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-500">110 modda</span>
+                    <div class="flex items-center text-brown-600">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-500">Progress:</span>
+                        <div class="flex items-center">
+                            <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                <div class="bg-brown-500 h-2 rounded-full" style="width: 15%"></div>
+                            </div>
+                            <span class="text-gray-600">15%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="mt-12">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-history mr-3"></i>So'nggi faoliyat
+            </h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-check text-green-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Jinoyat kodeksi - 168-modda</div>
+                                <div class="text-sm text-gray-600">Firibgarlik moddasini o'rganib tugatdingiz</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">2 soat oldin</div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-clipboard-check text-blue-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Test - Fuqarolik huquqi</div>
+                                <div class="text-sm text-gray-600">Testni 85% bilan yakunladingiz</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">5 soat oldin</div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                <i class="fas fa-play text-purple-600"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Mehnat kodeksi - 1-bob</div>
+                                <div class="text-sm text-gray-600">Asosiy qoidalarni o'rganishni boshladingiz</div>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">1 kun oldin</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="fixed top-20 right-4 z-50 max-w-sm">
+                {% for category, message in messages %}
+                    <div class="mb-2 p-4 rounded-lg shadow-lg {% if category == 'error' %}bg-red-100 text-red-800{% elif category == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

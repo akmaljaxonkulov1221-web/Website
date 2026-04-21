@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}{{ case.title }} - Case-Law Interactive{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Case Header -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-start justify-between">
+            <div>
+                <div class="flex items-center mb-2">
+                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                        {{ case.article.number }}
+                    </span>
+                    <span class="ml-2 text-sm text-gray-500">{{ case.article.subject.name }}</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ case.title }}</h1>
+                <p class="text-gray-600 mt-2">{{ case.description }}</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                    {% if case.difficulty == 'easy' %}bg-green-100 text-green-800
+                    {% elif case.difficulty == 'medium' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ case.difficulty }}
+                </span>
+                {% if progress and progress.is_correct %}
+                <span class="text-green-500">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Animation Section -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Vaziyatni vizuallashtirish</h2>
+        <div id="animation-container" class="bg-gray-50 rounded-lg p-8 min-h-[300px] relative">
+            <div id="animation-steps" class="space-y-4">
+                {% for step in animation_steps %}
+                <div class="animation-step hidden" data-step="{{ step.step }}">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-indigo-600 text-white rounded-full mb-4">
+                            <i class="fas fa-user text-3xl"></i>
+                        </div>
+                        <div class="text-lg font-medium text-gray-900">{{ step.description }}</div>
+                        <div class="text-sm text-gray-500 mt-2">{{ step.duration }}ms</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Animation Controls -->
+            <div class="absolute bottom-4 left-4 right-4 flex justify-center space-x-4">
+                <button id="play-animation" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-play mr-2"></i>Animatsiyani boshlash
+                </button>
+                <button id="reset-animation" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Qayta boshlash
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Scenario -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Vaziyat</h2>
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-lg text-gray-800 leading-relaxed">{{ case.scenario }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decision Section -->
+    {% if not progress or not progress.is_correct %}
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Qaror qiling</h2>
+        <p class="text-lg text-gray-700 mb-6">{{ case.decision_question }}</p>
+        
+        <form id="decision-form" action="{{ url_for('solve_case', case_id=case.id) }}" method="POST" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button type="submit" name="answer" value="yes" 
+                        class="decision-btn bg-green-50 border-2 border-green-200 rounded-lg p-6 hover:bg-green-100 transition-colors group">
+                    <div class="text-center">
+                        <i class="fas fa-check-circle text-4xl text-green-600 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="text-lg font-semibold text-green-800 mt-3">Ha</h3>
+                        <p class="text-sm text-green-600 mt-1">Jinoyat sodir bo'lgan</p>
+                    </div>
+                </button>
+                
+                <button type="submit" name="answer" value="no" 
+                        class="decision-btn bg-red-50 border-2 border-red-200 rounded-lg p-6 hover:bg-red-100 transition-colors group">
+                    <div class="text-center">
+                        <i class="fas fa-times-circle text-4xl text-red-600 group-hover:scale-110 transition-transform"></i>
+                        <h3 class="text-lg font-semibold text-red-800 mt-3">Yo'q</h3>
+                        <p class="text-sm text-red-600 mt-1">Jinoyat sodir bo'lmagan</p>
+                    </div>
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- Previous Attempt Result -->
+    {% if progress %}
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Oldingi javobingiz</h2>
+        <div class="{% if progress.is_correct %}bg-green-50{% else %}bg-red-50{% endif %} border-l-4 {% if progress.is_correct %}border-green-400{% else %}border-red-400{% endif %} p-4 rounded">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    {% if progress.is_correct %}
+                        <i class="fas fa-check-circle text-green-400 text-xl"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle text-red-400 text-xl"></i>
+                    {% endif %}
+                </div>
+                <div class="ml-3">
+                    <p class="text-lg font-medium {% if progress.is_correct %}text-green-800{% else %}text-red-800{% endif %}">
+                        Sizning javobingiz: {% if progress.user_answer == 'yes' %}Ha{% else %}Yo'q{% endif %}
+                    </p>
+                    <p class="{% if progress.is_correct %}text-green-600{% else %}text-red-600{% endif %} mt-1">
+                        {% if progress.is_correct %}
+                            To'g'ri javob! Tabriklaymiz!
+                        {% else %}
+                            Noto'g'ri javob. Qayta urinib ko'ring.
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-500 mt-2">Urinishlar soni: {{ progress.attempts }}</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if not progress.is_correct %}
+        <div class="mt-4">
+            <a href="{{ url_for('case_detail', case_id=case.id) }}" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                <i class="fas fa-redo mr-2"></i>Qayta yechish
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Related Cases -->
+    {% if case.article.cases|length > 1 %}
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Boshqa ishlar ({{ case.article.number }})</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for other_case in case.article.cases %}
+                {% if other_case.id != case.id %}
+                <a href="{{ url_for('case_detail', case_id=other_case.id) }}" 
+                   class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-balance-scale text-indigo-600"></i>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="text-sm font-medium text-gray-900">{{ other_case.title }}</div>
+                        <div class="text-sm text-gray-500">{{ other_case.description }}</div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if other_case.difficulty == 'easy' %}bg-green-100 text-green-800
+                            {% elif other_case.difficulty == 'medium' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ other_case.difficulty }}
+                        </span>
+                    </div>
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const animationSteps = document.querySelectorAll('.animation-step');
+    const playBtn = document.getElementById('play-animation');
+    const resetBtn = document.getElementById('reset-animation');
+    let currentStep = 0;
+    let animationInterval = null;
+
+    function showStep(stepIndex) {
+        animationSteps.forEach((step, index) => {
+            if (index === stepIndex) {
+                step.classList.remove('hidden');
+                step.style.opacity = '0';
+                setTimeout(() => {
+                    step.style.opacity = '1';
+                    step.style.transition = 'opacity 0.5s';
+                }, 100);
+            } else {
+                step.classList.add('hidden');
+            }
+        });
+    }
+
+    function playAnimation() {
+        if (animationInterval) {
+            clearInterval(animationInterval);
+        }
+        
+        currentStep = 0;
+        showStep(currentStep);
+        
+        const stepsCount = {{ animation_steps|length }};
+        const stepDuration = 2000; // Fixed duration for simplicity
+        
+        animationInterval = setInterval(() => {
+            currentStep++;
+            if (currentStep < animationSteps.length) {
+                showStep(currentStep);
+            } else {
+                clearInterval(animationInterval);
+                animationInterval = null;
+            }
+        }, 2000); // Change step every 2 seconds
+    }
+
+    function resetAnimation() {
+        if (animationInterval) {
+            clearInterval(animationInterval);
+            animationInterval = null;
+        }
+        currentStep = 0;
+        animationSteps.forEach(step => {
+            step.classList.add('hidden');
+        });
+    }
+
+    playBtn.addEventListener('click', playAnimation);
+    resetBtn.addEventListener('click', resetAnimation);
+
+    // Show first step initially
+    if (animationSteps.length > 0) {
+        showStep(0);
+    }
+
+    // Add hover effects to decision buttons
+    const decisionBtns = document.querySelectorAll('.decision-btn');
+    decisionBtns.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.02)';
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

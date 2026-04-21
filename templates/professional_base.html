@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Professional Legal System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        
+        .stats-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .legal-code-card {
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .legal-code-card:hover {
+            border-left-width: 10px;
+            transform: translateX(5px);
+        }
+        
+        .article-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .article-item:hover {
+            background-color: #f8f9fa;
+            padding-left: 20px;
+        }
+        
+        .analysis-element {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .confidence-badge {
+            background: linear-gradient(135deg, var(--success-color), #229954);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        
+        .search-box {
+            border-radius: 25px;
+            border: 2px solid var(--secondary-color);
+            padding: 12px 25px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-box:focus {
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+            border-color: var(--primary-color);
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+        
+        .severity-high {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+        
+        .severity-medium {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+        
+        .severity-low {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        
+        .complexity-high {
+            background-color: #fee;
+            border-left: 5px solid var(--danger-color);
+        }
+        
+        .complexity-medium {
+            background-color: #fef9e7;
+            border-left: 5px solid var(--warning-color);
+        }
+        
+        .complexity-low {
+            background-color: #eafaf1;
+            border-left: 5px solid var(--success-color);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-balance-scale"></i> Legal System Pro
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home"></i> Asosiy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('codes') }}">
+                            <i class="fas fa-book"></i> Kodekslar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('search') }}">
+                            <i class="fas fa-search"></i> Qidiruv
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('analysis') }}">
+                            <i class="fas fa-brain"></i> AI Tahlili
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('visualization') }}">
+                            <i class="fas fa-chart-bar"></i> Vizualizatsiya
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('export_json') }}">
+                            <i class="fas fa-download"></i> Eksport
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-balance-scale"></i> Professional Legal System</h5>
+                    <p>O'zbekiston Respublikasi qonun hujjatlarining AI-powered tahlil tizimi</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <h5><i class="fas fa-info-circle"></i> Ma'lumot</h5>
+                    <p>Version 2.0 | © 2024 Professional Legal System</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Yuklanmoqda...</span>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Loading spinner
+        function showLoading() {
+            document.querySelector('.loading-spinner').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.querySelector('.loading-spinner').style.display = 'none';
+        }
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Search functionality
+        function performSearch(query) {
+            if (query.trim()) {
+                showLoading();
+                window.location.href = `/search?q=${encodeURIComponent(query)}`;
+            }
+        }
+        
+        // Enter key for search
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.classList.contains('search-box')) {
+                performSearch(e.target.value);
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
