@@ -92,7 +92,7 @@
                     {% endif %}
                 </p>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-primary">{{ analysis_report.get('domain_distribution', {}).get(code_name.replace(' kodeksi', '_huquqi'), 0) or 0 }} modda</span>
+                    <span class="badge bg-primary">{{ legal_data[code_name]['moddalar']|length if legal_data[code_name]['moddalar'] else 0 }} modda</span>
                     <a href="{{ url_for('code_detail', code_name=code_name) }}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-arrow-right"></i> Ko'rish
                     </a>

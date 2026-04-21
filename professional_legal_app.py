@@ -67,6 +67,7 @@ def index():
     
     return render_template('professional_index.html', 
                          legal_codes=list(LEGAL_DATA.keys()),
+                         legal_data=LEGAL_DATA,
                          analysis_report=ANALYSIS_REPORT)
 
 @app.route('/dashboard')
