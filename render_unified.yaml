@@ -1,0 +1,30 @@
+services:
+  # Professional Legal System
+  - type: web
+    name: professional-legal-system
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python professional_legal_app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5005
+    healthCheckPath: /
+    autoDeploy: true
+    
+  # Case-Law Interactive 
+  - type: web
+    name: case-law-interactive
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python case_law_interactive.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5006
+    healthCheckPath: /
+    autoDeploy: true
