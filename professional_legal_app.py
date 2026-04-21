@@ -187,6 +187,22 @@ def api_article(code_name, article_id):
         'analyzed_article': analyzed_article
     })
 
+@app.route('/debug')
+def debug():
+    """Debug endpoint to check loaded data"""
+    debug_info = {
+        'legal_data_loaded': len(LEGAL_DATA),
+        'legal_codes': list(LEGAL_DATA.keys()),
+        'total_articles': sum(len(code_data.get('moddalar', [])) for code_data in LEGAL_DATA.values()),
+        'analysis_report_loaded': bool(ANALYSIS_REPORT)
+    }
+    
+    # Add article counts per code
+    for code_name, code_data in LEGAL_DATA.items():
+        debug_info[f'{code_name}_articles'] = len(code_data.get('moddalar', []))
+    
+    return jsonify(debug_info)
+
 @app.route('/export/json')
 def export_json():
     """JSON formatida eksport"""
