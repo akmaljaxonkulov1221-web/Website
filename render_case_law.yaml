@@ -1,0 +1,15 @@
+services:
+  # Case-Law Interactive Service
+  - type: web
+    name: case-law-interactive
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python case_law_interactive.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5006
+    healthCheckPath: /
+    autoDeploy: true
