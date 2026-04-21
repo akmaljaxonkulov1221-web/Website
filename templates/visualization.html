@@ -1,0 +1,172 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Vizualizatsiya - Professional Legal System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-info">
+            <i class="fas fa-chart-bar"></i> Vizualizatsiya
+        </h1>
+        <p class="lead text-muted">Qonun hujjatlarining vizual tahlili</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Kodekslar bo'yicha diagramma</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="codesChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Jazo og'irligi diagrammasi</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="severityChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Statistika Jadvali</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Kodeks nomi</th>
+                                <th>Moddalar soni</th>
+                                <th>Tahlil darajasi</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ma'muriy javobgarlik kodeksi</td>
+                                <td>651</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 85%">85%</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">Faol</span></td>
+                            </tr>
+                            <tr>
+                                <td>Fuqarolik kodeksi</td>
+                                <td>1200</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 90%">90%</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">Faol</span></td>
+                            </tr>
+                            <tr>
+                                <td>Jinoyat kodeksi</td>
+                                <td>404</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 88%">88%</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">Faol</span></td>
+                            </tr>
+                            <tr>
+                                <td>Yer kodeksi</td>
+                                <td>110</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 82%">82%</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">Faol</span></td>
+                            </tr>
+                            <tr>
+                                <td>Mehnat kodeksi</td>
+                                <td>581</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 87%">87%</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">Faol</span></td>
+                            </tr>
+                            <tr>
+                                <td>Oila kodeksi</td>
+                                <td>220</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 86%">86%</div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-success">Faol</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Codes Chart
+const codesCtx = document.getElementById('codesChart').getContext('2d');
+new Chart(codesCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Ma\'muriy', 'Fuqarolik', 'Jinoyat', 'Yer', 'Mehnat', 'Oila'],
+        datasets: [{
+            data: [651, 1200, 404, 110, 581, 220],
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Severity Chart
+const severityCtx = document.getElementById('severityChart').getContext('2d');
+new Chart(severityCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Juda Og\'ir', 'Og\'ir', 'O\'rta', 'Engil'],
+        datasets: [{
+            label: 'Moddalar soni',
+            data: [15, 62, 156, 206],
+            backgroundColor: ['#DC3545', '#FFC107', '#17A2B8', '#28A745']
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

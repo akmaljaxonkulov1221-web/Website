@@ -1,0 +1,77 @@
+{% extends "professional_base.html" %}
+
+{% block title %}{{ code_name }} - Professional Legal System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Asosiy</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('codes') }}">Kodekslar</a></li>
+                <li class="breadcrumb-item active">{{ code_name }}</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-book"></i> {{ code_name }}
+        </h1>
+        <p class="lead text-muted">
+            {% if code_name == 'Jinoyat kodeksi' %}
+                Jinoyat huquqi, javobgarlik, jazo turlari
+            {% elif code_name == 'Fuqarolik kodeksi' %}
+                Fuqarolik huquqlari, shartnomalar, mulkiy munosabatlar
+            {% elif code_name == 'Oila kodeksi' %}
+                Oilaviy munosabatlar, nikoh, ajralish
+            {% elif code_name == 'Mehnat kodeksi' %}
+                Mehnat munosabatlari, ish haqqi, huquqlar
+            {% elif code_name == 'Ma\'muriy javobgarlik kodeksi' %}
+                Ma\'muriy huquqbuzarliklar, jarimalar
+            {% elif code_name == 'Yer kodeksi' %}
+                Yer huquqi, foydalanish, himoya
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Moddalar ro'yxati</h5>
+            </div>
+            <div class="card-body">
+                {% if code_data %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Modda</th>
+                                    <th>Nomi</th>
+                                    <th>Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for article in code_data.get('moddalar', []) %}
+                                <tr>
+                                    <td><strong>{{ article.modda }}</strong></td>
+                                    <td>{{ article.nomi[:100] }}{% if article.nomi|length > 100 %}...{% endif %}</td>
+                                    <td>
+                                        <a href="{{ url_for('article_detail', code_name=code_name, article_id=article.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> Ko'rish
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Ma'lumot topilmadi
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

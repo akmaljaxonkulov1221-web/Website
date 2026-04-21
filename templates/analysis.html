@@ -1,0 +1,112 @@
+{% extends "professional_base.html" %}
+
+{% block title %}AI Tahlili - Professional Legal System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-success">
+            <i class="fas fa-brain"></i> AI Tahlili
+        </h1>
+        <p class="lead text-muted">O'zbekiston qonunlarining sun'iy intellekt tahlili</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Umumiy Statistika</h5>
+            </div>
+            <div class="card-body">
+                {% if analysis_report %}
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Jami kodekslar:</strong> {{ analysis_report.total_codes or 0 }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Tahlil qilingan moddalar:</strong> {{ analysis_report.total_articles or 0 }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>O'rtacha ishonch:</strong> {{ "%.1f"|format(analysis_report.average_confidence_score or 0) }}%
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Tahlil sanasi:</strong> {{ analysis_report.analysis_date or "Noma'lum" }}
+                        </li>
+                    </ul>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> Tahlil ma'lumotlari mavjud emas
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Qonun Sohalari Bo'yicha Taqsimot</h5>
+            </div>
+            <div class="card-body">
+                {% if analysis_report.domain_distribution %}
+                    {% for code, count in analysis_report.domain_distribution.items() %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ code }}</span>
+                        <span class="badge bg-primary">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Taqsimot ma'lumotlari mavjud emas
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Jazo Og'irligi Bo'yicha Taqsimot</h5>
+            </div>
+            <div class="card-body">
+                {% if analysis_report.punishment_severity_distribution %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-danger">{{ analysis_report.punishment_severity_distribution.extreme or 0 }}</h4>
+                                <p>Juda Og'ir</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-warning">{{ analysis_report.punishment_severity_distribution.high or 0 }}</h4>
+                                <p>Og'ir</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-info">{{ analysis_report.punishment_severity_distribution.medium or 0 }}</h4>
+                                <p>O'rta</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-success">{{ analysis_report.punishment_severity_distribution.light or 0 }}</h4>
+                                <p>Engil</p>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Jazo taqsimoti ma'lumotlari mavjud emas
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,7 +3,8 @@
 Professional Legal Web Application - Mukammal web interfeysi
 """
 
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_file
+from werkzeug.security import generate_password_hash, check_password_hash
 import json
 import os
 from datetime import datetime
@@ -88,7 +89,7 @@ def codes():
 @app.route('/code/<code_name>')
 def code_detail(code_name):
     """Kodeks tafsilotlari"""
-    code_data = LEGAL_DATA.get(code_name, [])
+    code_data = LEGAL_DATA.get(code_name, {})
     analyzed_code_data = ANALYZED_DATA.get(code_name, [])
     
     return render_template('code_detail.html',
@@ -101,7 +102,8 @@ def article_detail(code_name, article_id):
     """Modda tafsilotlari"""
     # Asosiy ma'lumot
     article = None
-    for art in LEGAL_DATA.get(code_name, []):
+    code_data = LEGAL_DATA.get(code_name, {})
+    for art in code_data.get('moddalar', []):
         if art.get('id') == article_id:
             article = art
             break

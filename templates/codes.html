@@ -1,0 +1,51 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Kodekslar - Professional Legal System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-book"></i> Qonun Kodekslari
+        </h1>
+        <p class="lead text-muted">O'zbekiston Respublikasining barcha huquqiy kodekslari</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for code_name, code_data in legal_data.items() %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ code_name }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    {% if code_name == 'Jinoyat kodeksi' %}
+                        Jinoyat huquqi, javobgarlik, jazo turlari
+                    {% elif code_name == 'Fuqarolik kodeksi' %}
+                        Fuqarolik huquqlari, shartnomalar, mulkiy munosabatlar
+                    {% elif code_name == 'Oila kodeksi' %}
+                        Oilaviy munosabatlar, nikoh, ajralish
+                    {% elif code_name == 'Mehnat kodeksi' %}
+                        Mehnat munosabatlari, ish haqqi, huquqlar
+                    {% elif code_name == 'Ma\'muriy javobgarlik kodeksi' %}
+                        Ma\'muriy huquqbuzarliklar, jarimalar
+                    {% elif code_name == 'Yer kodeksi' %}
+                        Yer huquqi, foydalanish, himoya
+                    {% endif %}
+                </p>
+                <p class="card-text">
+                    <strong>Jami moddalar:</strong> {{ code_data['moddalar']|length if code_data['moddalar'] else 0 }}
+                </p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('code_detail', code_name=code_name) }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> To'liq ko'rish
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
