@@ -207,7 +207,7 @@
         <i class="fas fa-sitemap me-2"></i>Kodekslar bo'yicha tahlil
     </h3>
     <div id="drillDownContent">
-        {% if analysis_report and legal_data %}
+        {% if legal_data %}
             {% for code_name, code_data in legal_data.items() %}
             <div class="drill-down-item" onclick="drillDown('{{ code_name }}')">
                 <div class="d-flex justify-content-between align-items-center">
@@ -221,6 +221,10 @@
                 </div>
             </div>
             {% endfor %}
+        {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> Kodeks ma'lumotlari mavjud emas
+            </div>
         {% endif %}
     </div>
 </div>
@@ -510,40 +514,68 @@ function drillDown(codeName) {
     // Show loading
     modalContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
     
-    // Load content (mock data)
-    setTimeout(() => {
-        modalContent.innerHTML = `
-            <div class="list-group">
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6>1-modda. Umumiy qoidalar</h6>
-                            <small class="text-muted">AI tahlili: 95% ishonch</small>
-                        </div>
-                        <span class="badge bg-success">95%</span>
+    // Load real data from API
+    fetch(`/api/analysis/drilldown/${encodeURIComponent(codeName)}`)
+        .then(response => response.json())
+        .then(data => {
+            let content = '';
+            if (data.analyzed_articles && data.analyzed_articles.length > 0) {
+                content = `
+                    <div class="mb-3">
+                        <span class="badge bg-info">Jami moddalar: ${data.total_articles}</span>
+                        <span class="badge bg-success ms-2">Tahlil qilingan: ${data.analyzed_articles.length}</span>
                     </div>
-                </div>
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6>2-modda. Huquqbuzarliklik</h6>
-                            <small class="text-muted">AI tahlili: 88% ishonch</small>
+                    <div class="list-group">
+                `;
+                
+                data.analyzed_articles.forEach(article => {
+                    const confidenceClass = article.confidence_score >= 90 ? 'bg-success' : 
+                                          article.confidence_score >= 80 ? 'bg-warning' : 'bg-danger';
+                    const complexityIcon = article.complexity === 'high' ? 'fa-exclamation-triangle text-danger' : 
+                                         article.complexity === 'medium' ? 'fa-exclamation-circle text-warning' : 
+                                         'fa-check-circle text-success';
+                    
+                    content += `
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>${article.id}-modda. ${article.title}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas ${complexityIcon} me-1"></i>
+                                        Murakkablik: ${article.complexity}
+                                    </small>
+                                    <div class="mt-1">
+                                        <small class="text-muted">
+                                            ${article.key_points.slice(0, 2).join(' | ')}
+                                        </small>
+                                    </div>
+                                </div>
+                                <span class="badge ${confidenceClass}">${article.confidence_score}%</span>
+                            </div>
                         </div>
-                        <span class="badge bg-warning">88%</span>
+                    `;
+                });
+                
+                content += '</div>';
+            } else {
+                content = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        ${code_name} bo'yicha ma'lumot topilmadi
                     </div>
+                `;
+            }
+            
+            modalContent.innerHTML = content;
+        })
+        .catch(error => {
+            modalContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Xatolik yuz berdi: ${error.message}
                 </div>
-                <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h6>3-modda. Qonun kuchining kuchi</h6>
-                            <small class="text-muted">AI tahlili: 92% ishonch</small>
-                        </div>
-                        <span class="badge bg-info">92%</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }, 500);
+            `;
+        });
     
     modal.show();
 }
