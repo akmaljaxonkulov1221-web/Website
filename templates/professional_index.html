@@ -2,6 +2,236 @@
 
 {% block title %}Professional Legal System - Asosiy{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Case-Law Interactive Styles */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #007bff;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.interactive-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.interactive-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.feature-btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.feature-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.feature-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.legal-map-node {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.legal-map-node:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.legal-map-node::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #007bff, #28a745, #ffc107, #dc3545);
+    border-radius: 8px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.legal-map-node:hover::after {
+    opacity: 1;
+}
+
+.test-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.test-card:hover {
+    border-left-color: #007bff;
+    background: #f8f9fa;
+}
+
+.progress-animated {
+    animation: progressAnimation 2s ease-in-out infinite;
+}
+
+@keyframes progressAnimation {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #007bff;
+    color: white;
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0,123,255,0.25);
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stats-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* 3D Animation Styles */
+.cube-3d {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: rotateCube 10s infinite linear;
+}
+
+@keyframes rotateCube {
+    0% { transform: rotateX(0deg) rotateY(0deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+.cube-face {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(0,123,255,0.8);
+    border: 2px solid #0056b3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.front { transform: translateZ(50px); }
+.back { transform: rotateY(180deg) translateZ(50px); }
+.right { transform: rotateY(90deg) translateZ(50px); }
+.left { transform: rotateY(-90deg) translateZ(50px); }
+.top { transform: rotateX(90deg) translateZ(50px); }
+.bottom { transform: rotateX(-90deg) translateZ(50px); }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
@@ -42,6 +272,79 @@
             <div class="stats-number">{{ analysis_report.domain_distribution|length or 0 }}</div>
             <div class="stats-label">Huquqiy Sohalar</div>
             <i class="fas fa-gavel fa-2x mt-3"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Case-Law Interactive Features -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-gradient text-white">
+                <h3 class="mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    Case-Law Interactive - Interaktiv Yuridik O'quv Tizimi
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Fan Selection -->
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-book-open me-2"></i>Fanlar Tanlash
+                        </h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-lg" onclick="showFan('jinoyat_tarkibi')">
+                                <i class="fas fa-gavel me-2"></i>Jinoyat Tarkibi
+                            </button>
+                            <button class="btn btn-outline-success btn-lg" onclick="showFan('talonchilik')">
+                                <i class="fas fa-shield-alt me-2"></i>Talonchilik
+                            </button>
+                            <button class="btn btn-outline-info btn-lg" onclick="showFan('bosqinchilik')">
+                                <i class="fas fa-hand-rock me-2"></i>Bosqinchilik
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Interactive Features -->
+                    <div class="col-md-6 mb-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-brain me-2"></i>Interaktiv Funksiyalar
+                        </h5>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-warning" onclick="showFeature('visual')">
+                                <i class="fas fa-eye me-2"></i>Vizual Tushuntirish
+                            </button>
+                            <button class="btn btn-outline-info" onclick="showFeature('animations')">
+                                <i class="fas fa-film me-2"></i>3D Animatsiyalar
+                            </button>
+                            <button class="btn btn-outline-success" onclick="showFeature('keys')">
+                                <i class="fas fa-key me-2"></i>Interaktiv Keys
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="showFeature('test')">
+                                <i class="fas fa-clipboard-check me-2"></i>Test va Baholash
+                            </button>
+                            <button class="btn btn-outline-primary" onclick="showFeature('map')">
+                                <i class="fas fa-map me-2"></i>Huquqiy Xarita
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Content Area -->
+<div id="interactive-content" class="row mb-5" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 id="content-title" class="mb-0"></h4>
+            </div>
+            <div class="card-body" id="content-body">
+                <!-- Dynamic content will be loaded here -->
+            </div>
         </div>
     </div>
 </div>
@@ -164,37 +467,490 @@
 
 {% block extra_js %}
 <script>
+// Case-Law Interactive Functions
+const legalData = {
+    jinoyat_tarkibi: {
+        title: 'Jinoyat Tarkibi',
+        description: 'Jinoyat tarkibining to\'liq tahlili',
+        visual: {
+            elements: [
+                { name: 'Obekt', icon: 'fa-bullseye', color: 'blue', description: 'Jinoyat qilinadigan narsa' },
+                { name: 'Subekt', icon: 'fa-user', color: 'green', description: 'Jinoyat qiluvchi shaxs' },
+                { name: 'Subyektiv', icon: 'fa-brain', color: 'purple', description: 'Jinoyatga nisbatan munosabat' }
+            ]
+        },
+        animations: [
+            { title: 'Jinoyat sodir etilishi', time: '00:00', description: 'Jinoyat sodir etilgan vaqt' },
+            { title: 'Tergov', time: '00:30', description: 'Tergov jarayonlari' },
+            { title: 'Sud', time: '01:00', description: 'Sud jarayoni' }
+        ],
+        keys: [
+            { question: 'Jinoyat tarkibida obekt nima?', answer: 'Jinoyat qilinadigan narsa' },
+            { question: 'Subekt kim?', answer: 'Jinoyat qiluvchi shaxs' },
+            { question: 'Subyektiv nima?', answer: 'Jinoyatga nisbatan munosabat' }
+        ],
+        test: [
+            { question: 'Jinoyat tarkibida nechta unsur bor?', options: ['3 ta', '4 ta', '5 ta', '6 ta'], correct: 2 },
+            { question: 'Obekt nima?', options: ['Jinoyat qiluvchi', 'Jinoyat qilinadigan narsa', 'Javobgarlik'], correct: 1 }
+        ]
+    },
+    talonchilik: {
+        title: 'Talonchilik',
+        description: 'Talonchilik jinoyatlarining tahlili',
+        visual: {
+            elements: [
+                { name: 'Mulk', icon: 'fa-home', color: 'orange', description: 'O\'g\'rilikka uchragan mulk' },
+                { name: 'O\'g\'ri', icon: 'fa-user-secret', color: 'red', description: 'Talonchi' },
+                { name: 'Jazo', icon: 'fa-gavel', color: 'dark', description: 'Javobgarlik' }
+            ]
+        },
+        animations: [
+            { title: 'Talonchilik sodir etilishi', time: '00:00', description: 'Talonchilik sodir etilgan vaqt' },
+            { title: 'Qochish', time: '00:15', description: 'Talonchining qochishi' },
+            { title: 'Qo\'lga olish', time: '00:45', description: 'Talonchi qo\'lga olinishi' }
+        ],
+        keys: [
+            { question: 'Talonchilik qaysi huquqqa tegishli?', answer: 'Mulkka qarshi huquq' },
+            { question: 'Talonchilik objekti nima?', answer: 'O\'g\'rilikka uchragan mulk' },
+            { question: 'Talonchilik uchun jazo qanday?', answer: 'Jamoat joylarida ishlash' }
+        ],
+        test: [
+            { question: 'Talonchilik qaysi moddada?', options: ['164-modda', '165-modda', '166-modda', '167-modda'], correct: 3 },
+            { question: 'Talonchilik uchun jazo?', options: ['Jarima', 'Qamoq', 'Jamoat joylarida ishlash', 'O\'lim jazosi'], correct: 2 }
+        ]
+    },
+    bosqinchilik: {
+        title: 'Bosqinchilik',
+        description: 'Bosqinchilik jinoyatlarining tahlili',
+        visual: {
+            elements: [
+                { name: 'Shaxs', icon: 'fa-user', color: 'purple', description: 'Bosqinchilikka uchragan shaxs' },
+                { name: 'Bosqinchi', icon: 'fa-fist-raised', color: 'red', description: 'Bosqinchi' },
+                { name: 'Zarar', icon: 'fa-exclamation-triangle', color: 'orange', description: 'Kelgizilgan zarar' }
+            ]
+        },
+        animations: [
+            { title: 'Bosqinchilik sodir etilishi', time: '00:00', description: 'Bosqinchilik sodir etilgan vaqt' },
+            { title: 'Qarshilik', time: '00:10', description: 'Qurbonning qarshilik ko\'rsatishi' },
+            { title: 'Qo\'lga olish', time: '00:30', description: 'Bosqinchi qo\'lga olinishi' }
+        ],
+        keys: [
+            { question: 'Bosqinchilik qaysi huquqqa tegishli?', answer: 'Shaxsga qarshi huquq' },
+            { question: 'Bosqinchilik objekti nima?', answer: 'Shaxsga qarshi jinoyat' },
+            { question: 'Bosqinchilik uchun jazo qanday?', answer: 'Qamoq jazosi' }
+        ],
+        test: [
+            { question: 'Bosqinchilik qaysi moddada?', options: ['104-modda', '105-modda', '106-modda', '107-modda'], correct: 1 },
+            { question: 'Bosqinchilik uchun jazo?', options: ['Jarima', 'Qamoq', 'Jamoat joylarida ishlash', 'O\'lim jazosi'], correct: 1 }
+        ]
+    }
+};
+
+let currentFan = null;
+let currentFeature = null;
+
+function showFan(fanName) {
+    currentFan = fanName;
+    const contentDiv = document.getElementById('interactive-content');
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    const fan = legalData[fanName];
+    titleDiv.innerHTML = `<i class="fas fa-book me-2"></i>${fan.title}`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-md-12">
+                <p class="lead">${fan.description}</p>
+                <div class="mt-4">
+                    <h5 class="text-primary">Mavzular:</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="showFeature('visual')">
+                            <i class="fas fa-eye me-2"></i>Vizual Tushuntirish
+                        </button>
+                        <button class="btn btn-outline-info" onclick="showFeature('animations')">
+                            <i class="fas fa-film me-2"></i>3D Animatsiyalar
+                        </button>
+                        <button class="btn btn-outline-success" onclick="showFeature('keys')">
+                            <i class="fas fa-key me-2"></i>Interaktiv Keys
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="showFeature('test')">
+                            <i class="fas fa-clipboard-check me-2"></i>Test va Baholash
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="showFeature('map')">
+                            <i class="fas fa-map me-2"></i>Huquqiy Xarita
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    contentDiv.style.display = 'block';
+    contentDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showFeature(featureName) {
+    currentFeature = featureName;
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    if (!currentFan) {
+        // Show general feature
+        showGeneralFeature(featureName);
+        return;
+    }
+    
+    const fan = legalData[currentFan];
+    
+    switch(featureName) {
+        case 'visual':
+            showVisualExplanation(fan);
+            break;
+        case 'animations':
+            showAnimations(fan);
+            break;
+        case 'keys':
+            showInteractiveKeys(fan);
+            break;
+        case 'test':
+            showTest(fan);
+            break;
+        case 'map':
+            showLegalMap(fan);
+            break;
+    }
+}
+
+function showVisualExplanation(fan) {
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    titleDiv.innerHTML = `<i class="fas fa-eye me-2"></i>${fan.title} - Vizual Tushuntirish`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-primary mb-4">Tarkib Unsurlari</h5>
+                <div class="row">
+                    ${fan.visual.elements.map(element => `
+                        <div class="col-md-4 mb-3">
+                            <div class="card text-center h-100">
+                                <div class="card-body">
+                                    <i class="fas ${element.icon} fa-3x text-${element.color} mb-3"></i>
+                                    <h6 class="card-title">${element.name}</h6>
+                                    <p class="card-text text-muted">${element.description}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="text-primary">Bosqichma-bosqich tushuntirish:</h6>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h6>1. Analiz</h6>
+                            <p>${fan.title} tarkibini tahlil qilish</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h6>2. Tushuntirish</h6>
+                            <p>Har bir unsurning mohiyatini ochish</p>
+                        </div>
+                        <div class="timeline-item">
+                            <h6>3. Misollar</h6>
+                            <p>Haqiqiy hayotdan misollar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showAnimations(fan) {
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    titleDiv.innerHTML = `<i class="fas fa-film me-2"></i>${fan.title} - 3D Animatsiyalar`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-primary mb-4">Timeline Animatsiyalari</h5>
+                <div class="timeline">
+                    ${fan.animations.map((anim, index) => `
+                        <div class="timeline-item">
+                            <div class="timeline-content">
+                                <h6>${anim.title}</h6>
+                                <p class="text-muted">${anim.time}</p>
+                                <p>${anim.description}</p>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar" style="width: ${(index + 1) * 33}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="text-primary">3D Vizualizatsiya:</h6>
+                    <div class="text-center p-4 bg-light rounded">
+                        <i class="fas fa-cube fa-3x text-primary mb-3"></i>
+                        <p>3D animatsiya tayyorlanmoqda...</p>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Yuklanmoqda...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showInteractiveKeys(fan) {
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    titleDiv.innerHTML = `<i class="fas fa-key me-2"></i>${fan.title} - Interaktiv Keys`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-primary mb-4">Savol-Javob Tizimi</h5>
+                <div class="accordion" id="keysAccordion">
+                    ${fan.keys.map((key, index) => `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading${index}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                    ${key.question}
+                                </button>
+                            </h2>
+                            <div id="collapse${index}" class="accordion-collapse collapse" data-bs-parent="#keysAccordion">
+                                <div class="accordion-body">
+                                    <div class="alert alert-success">
+                                        <strong>Javob:</strong> ${key.answer}
+                                    </div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-success me-2" onclick="checkAnswer(${index}, true)">
+                                            <i class="fas fa-check"></i> To'g'ri
+                                        </button>
+                                        <button class="btn btn-danger" onclick="checkAnswer(${index}, false)">
+                                            <i class="fas fa-times"></i> Noto'g'ri
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showTest(fan) {
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    titleDiv.innerHTML = `<i class="fas fa-clipboard-check me-2"></i>${fan.title} - Test va Baholash`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-primary mb-4">Test Savollari</h5>
+                <form id="testForm">
+                    ${fan.test.map((question, index) => `
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">${index + 1}. ${question.question}</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    ${question.options.map((option, optIndex) => `
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="q${index}" id="q${index}o${optIndex}" value="${optIndex}">
+                                            <label class="form-check-label" for="q${index}o${optIndex}">
+                                                ${option}
+                                            </label>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div class="text-center">
+                        <button type="button" class="btn btn-primary btn-lg" onclick="calculateTestScore()">
+                            <i class="fas fa-calculator me-2"></i>Ballni Hisoblash
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="testResult" class="mt-4" style="display: none;">
+                    <div class="alert alert-info">
+                        <h5>Test Natijasi</h5>
+                        <div class="progress mb-3">
+                            <div id="scoreBar" class="progress-bar" style="width: 0%">0%</div>
+                        </div>
+                        <p id="scoreText"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showLegalMap(fan) {
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    titleDiv.innerHTML = `<i class="fas fa-map me-2"></i>${fan.title} - Huquqiy Xarita`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <h5 class="text-primary mb-4">Huquqiy Bog'liqliklar</h5>
+                <div class="text-center">
+                    <div class="mb-4">
+                        <div class="d-inline-block p-3 bg-light rounded">
+                            <h6>${fan.title}</h6>
+                            <i class="fas fa-arrow-down fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Bog'liqliklar:</h6>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Jinoyat Kodeksi</span>
+                                        <i class="fas fa-arrow-right text-primary"></i>
+                                        <span>${fan.title}</span>
+                                        <i class="fas fa-arrow-right text-success"></i>
+                                        <span>Javobgarlik</span>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 75%">75% bog'liqlik</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function showGeneralFeature(featureName) {
+    const titleDiv = document.getElementById('content-title');
+    const bodyDiv = document.getElementById('content-body');
+    
+    const features = {
+        visual: {
+            title: 'Vizual Tushuntirish',
+            content: 'Barcha fanlar uchun vizual tushuntirishlar'
+        },
+        animations: {
+            title: '3D Animatsiyalar',
+            content: 'Barcha fanlar uchun 3D animatsiyalar'
+        },
+        keys: {
+            title: 'Interaktiv Keys',
+            content: 'Barcha fanlar uchun interaktiv savollar'
+        },
+        test: {
+            title: 'Test va Baholash',
+            content: 'Barcha fanlar uchun testlar'
+        },
+        map: {
+            title: 'Huquqiy Xarita',
+            content: 'Barcha fanlar uchun huquqiy xarita'
+        }
+    };
+    
+    const feature = features[featureName];
+    titleDiv.innerHTML = `<i class="fas fa-brain me-2"></i>${feature.title}`;
+    
+    bodyDiv.innerHTML = `
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <i class="fas fa-graduation-cap fa-5x text-primary mb-4"></i>
+                    <h5>${feature.content}</h5>
+                    <p class="text-muted">Iltimos, avval fan tanlang</p>
+                    <div class="mt-4">
+                        <button class="btn btn-primary" onclick="showFan('jinoyat_tarkibi')">
+                            <i class="fas fa-gavel me-2"></i>Jinoyat Tarkibi
+                        </button>
+                        <button class="btn btn-success ms-2" onclick="showFan('talonchilik')">
+                            <i class="fas fa-shield-alt me-2"></i>Talonchilik
+                        </button>
+                        <button class="btn btn-info ms-2" onclick="showFan('bosqinchilik')">
+                            <i class="fas fa-hand-rock me-2"></i>Bosqinchilik
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function checkAnswer(questionIndex, isCorrect) {
+    const resultDiv = document.getElementById(`answer${questionIndex}`);
+    if (isCorrect) {
+        resultDiv.innerHTML = '<div class="alert alert-success">To\'g\'ri javob!</div>';
+    } else {
+        resultDiv.innerHTML = '<div class="alert alert-danger">Noto\'g\'ri javob. Qayta urinib ko\'ring.</div>';
+    }
+}
+
+function calculateTestScore() {
+    const form = document.getElementById('testForm');
+    const resultDiv = document.getElementById('testResult');
+    const scoreBar = document.getElementById('scoreBar');
+    const scoreText = document.getElementById('scoreText');
+    
+    if (!currentFan) return;
+    
+    const fan = legalData[currentFan];
+    let correct = 0;
+    
+    fan.test.forEach((question, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        if (selected && parseInt(selected.value) === question.correct) {
+            correct++;
+        }
+    });
+    
+    const score = Math.round((correct / fan.test.length) * 100);
+    
+    scoreBar.style.width = score + '%';
+    scoreBar.textContent = score + '%';
+    
+    if (score >= 80) {
+        scoreBar.className = 'progress-bar bg-success';
+        scoreText.textContent = 'A\'lo! Testni muvaffaqiyatli topshirdingiz!';
+    } else if (score >= 60) {
+        scoreBar.className = 'progress-bar bg-warning';
+        scoreText.textContent = 'Yaxshi! Lekin yaxshilash mumkin.';
+    } else {
+        scoreBar.className = 'progress-bar bg-danger';
+        scoreText.textContent = 'Qayta urinib ko\'ring! Materialni takrorlang.';
+    }
+    
+    resultDiv.style.display = 'block';
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
 // Domain Distribution Chart
 const domainCtx = document.getElementById('domainChart').getContext('2d');
 const domainData = {{ analysis_report.get('domain_distribution', {})|tojson|safe }};
-new Chart(domainCtx, {
-    type: 'doughnut',
-    data: {
-        labels: Object.keys(domainData),
-        datasets: [{
-            data: Object.values(domainData),
-            backgroundColor: [
-                '#3498db',
-                '#e74c3c',
-                '#f39c12',
-                '#27ae60',
-                '#9b59b6',
-                '#1abc9c'
-            ],
-            borderWidth: 2,
-            borderColor: '#fff'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
-});
 
 // Severity Distribution Chart
 const severityCtx = document.getElementById('severityChart').getContext('2d');
