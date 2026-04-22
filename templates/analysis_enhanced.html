@@ -88,15 +88,6 @@
     overflow: hidden;
 }
 
-.punishment-label {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    font-weight: bold;
-    color: white;
-}
-
 .loading-skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
@@ -107,10 +98,6 @@
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
-
-.trend-up { color: #4CAF50; }
-.trend-down { color: #FF5722; }
-.trend-stable { color: #FFC107; }
 </style>
 {% endblock %}
 
@@ -246,9 +233,6 @@
     <div class="row">
         <div class="col-md-6">
             <h4 class="mb-3">Jazo turlari bo'yicha taqsimot (%)</h4>
-            <div class="punishment-bar mb-3">
-                <div class="punishment-label" style="left: 10%;">Engil - 45%</div>
-            </div>
             <div class="progress mb-3">
                 <div class="progress-bar bg-success" style="width: 45%">Engil - 45%</div>
             </div>
@@ -602,83 +586,5 @@ function askAI() {
         `;
     }, 1000);
 }
-
-// Filter functions
-document.getElementById('codeFilter')?.addEventListener('change', function() {
-    console.log('Code filter changed:', this.value);
-    // Implement filter logic
-});
-
-document.getElementById('dateFilter')?.addEventListener('change', function() {
-    console.log('Date filter changed:', this.value);
-    // Implement filter logic
-});
-
-document.getElementById('punishmentFilter')?.addEventListener('change', function() {
-    console.log('Punishment filter changed:', this.value);
-    // Implement filter logic
-});
 </script>
-{% endblock %}
-            <div class="card-body">
-                {% if analysis_report.domain_distribution %}
-                    {% for code, count in analysis_report.domain_distribution.items() %}
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ code }}</span>
-                        <span class="badge bg-primary">{{ count }}</span>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Taqsimot ma'lumotlari mavjud emas
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Jazo Og'irligi Bo'yicha Taqsimot</h5>
-            </div>
-            <div class="card-body">
-                {% if analysis_report.punishment_severity_distribution %}
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-danger">{{ analysis_report.punishment_severity_distribution.extreme or 0 }}</h4>
-                                <p>Juda Og'ir</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-warning">{{ analysis_report.punishment_severity_distribution.high or 0 }}</h4>
-                                <p>Og'ir</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-info">{{ analysis_report.punishment_severity_distribution.medium or 0 }}</h4>
-                                <p>O'rta</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="text-center">
-                                <h4 class="text-success">{{ analysis_report.punishment_severity_distribution.light or 0 }}</h4>
-                                <p>Engil</p>
-                            </div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> Jazo taqsimoti ma'lumotlari mavjud emas
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
