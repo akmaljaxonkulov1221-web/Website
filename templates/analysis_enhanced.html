@@ -383,6 +383,27 @@
     </div>
 </div>
 
+<!-- Article Analysis Modal -->
+<div class="modal fade" id="articleAnalysisModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="articleModalTitle">Modda tahlili</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="articleModalContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+                <button type="button" class="btn btn-primary" onclick="exportArticleAnalysis()">
+                    <i class="fas fa-download me-2"></i>Eksport qilish
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -537,20 +558,34 @@ function drillDown(codeName) {
                     
                     content += `
                         <div class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6>${article.id}-modda. ${article.title}</h6>
-                                    <small class="text-muted">
-                                        <i class="fas ${complexityIcon} me-1"></i>
-                                        Murakkablik: ${article.complexity}
-                                    </small>
-                                    <div class="mt-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0">${article.id}-modda. ${article.title}</h6>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary me-2" onclick="analyzeArticle('${data.code_name}', '${article.id}')">
+                                                <i class="fas fa-microscope"></i> Tahlil
+                                            </button>
+                                            <span class="badge ${confidenceClass}">${article.confidence_score}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas ${complexityIcon} me-1"></i>
+                                            Murakkablik: ${article.complexity}
+                                        </small>
+                                    </div>
+                                    <div class="mb-2">
                                         <small class="text-muted">
                                             ${article.key_points.slice(0, 2).join(' | ')}
                                         </small>
                                     </div>
+                                    <div class="mt-2">
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar ${confidenceClass}" style="width: ${article.confidence_score}%"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <span class="badge ${confidenceClass}">${article.confidence_score}%</span>
                             </div>
                         </div>
                     `;
@@ -578,6 +613,267 @@ function drillDown(codeName) {
         });
     
     modal.show();
+}
+
+// Individual Article Analysis function
+function analyzeArticle(codeName, articleId) {
+    // Close current modal and open new one
+    const currentModal = bootstrap.Modal.getInstance(document.getElementById('drillDownModal'));
+    if (currentModal) {
+        currentModal.hide();
+    }
+    
+    // Create new modal for article analysis
+    const articleModal = new bootstrap.Modal(document.getElementById('articleAnalysisModal'));
+    const modalTitle = document.getElementById('articleModalTitle');
+    const modalContent = document.getElementById('articleModalContent');
+    
+    modalTitle.textContent = `Modda tahlili: ${articleId}`;
+    
+    // Show loading
+    modalContent.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Modda tahlil qilinmoqda...</p>
+        </div>
+    `;
+    
+    // Load article analysis from API
+    fetch(`/api/analysis/article/${encodeURIComponent(codeName)}/${encodeURIComponent(articleId)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                modalContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        ${data.error}
+                    </div>
+                `;
+            } else {
+                renderArticleAnalysis(data);
+            }
+        })
+        .catch(error => {
+            modalContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    Xatolik yuz berdi: ${error.message}
+                </div>
+            `;
+        });
+    
+    articleModal.show();
+}
+
+// Render article analysis
+function renderArticleAnalysis(data) {
+    const modalContent = document.getElementById('articleModalContent');
+    const analysis = data.ai_analysis;
+    const article = data.article;
+    
+    const riskClass = analysis.risk_level === 'high' ? 'danger' : 
+                     analysis.risk_level === 'medium' ? 'warning' : 'success';
+    
+    const complexityClass = analysis.complexity === 'high' ? 'danger' : 
+                          analysis.complexity === 'medium' ? 'warning' : 'success';
+    
+    modalContent.innerHTML = `
+        <div class="row">
+            <!-- Article Info -->
+            <div class="col-md-12 mb-4">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-alt me-2"></i>
+                            ${article.id}-modda. ${article.title}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">${article.content.substring(0, 200)}...</p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-info">${article.code_name}</span>
+                            <span class="badge bg-${riskClass}">Xavf darajasi: ${analysis.risk_level}</span>
+                            <span class="badge bg-${complexityClass}">Murakkablik: ${analysis.complexity}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Analysis Overview -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-brain me-2"></i>AI Tahlili
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Umumiy ishonch</span>
+                                <strong>${analysis.overall_confidence.toFixed(1)}%</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: ${analysis.overall_confidence}%"></div>
+                            </div>
+                        </div>
+                        
+                        <h6 class="mb-3">Tahlil turlari:</h6>
+                        ${Object.entries(analysis.analysis_types).map(([type, score]) => `
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small>${type.charAt(0).toUpperCase() + type.slice(1)}</small>
+                                    <small>${score}%</small>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar" style="width: ${score}%"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Key Insights -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>Asosiy tushunchalar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            ${data.key_insights.map(insight => `
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    ${insight}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Risks -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Xavflar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            ${data.risks.map(risk => `
+                                <li class="mb-2">
+                                    <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                    ${risk}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-shield-alt me-2"></i>Tavsiyalar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            ${data.recommendations.map(rec => `
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    ${rec}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Articles -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-link me-2"></i>Bog'liq moddalar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        ${data.related_articles.map(article => `
+                            <div class="mb-2 p-2 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="fw-bold">${article.id}-modda. ${article.title}</small>
+                                        <div class="text-muted" style="font-size: 0.8rem;">
+                                            <span class="badge bg-outline-secondary">${article.connection_type}</span>
+                                            <span class="ms-2">Relevance: ${(article.relevance * 100).toFixed(0)}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Legal Precedents -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-gavel me-2"></i>Huquqiy pretsedentlar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        ${data.legal_precedents.map(precedent => `
+                            <div class="mb-2 p-2 border rounded">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="fw-bold">${precedent.case_name}</small>
+                                        <div class="text-muted" style="font-size: 0.8rem;">
+                                            ${precedent.year} · Relevance: ${(precedent.relevance * 100).toFixed(0)}%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Practical Applications -->
+            <div class="col-md-12">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>Amaliy qo'llanilishi
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            ${data.practical_applications.map(app => `
+                                <div class="col-md-4 mb-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-check-circle text-info me-2"></i>
+                                        <span>${app}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // AI Chat function
@@ -617,6 +913,38 @@ function askAI() {
             </div>
         `;
     }, 1000);
+}
+
+// Export article analysis
+function exportArticleAnalysis() {
+    const modalTitle = document.getElementById('articleModalTitle').textContent;
+    const modalContent = document.getElementById('articleModalContent');
+    
+    // Create a temporary element to hold the content
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = modalContent.innerHTML;
+    
+    // Remove buttons and interactive elements
+    const buttons = tempElement.querySelectorAll('button');
+    buttons.forEach(btn => btn.remove());
+    
+    // Create the export content
+    const exportContent = `
+        <h1>${modalTitle}</h1>
+        <hr>
+        ${tempElement.innerHTML}
+    `;
+    
+    // Create blob and download
+    const blob = new Blob([exportContent], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `modda_tahlili_${new Date().toISOString().split('T')[0]}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
 }
 </script>
 {% endblock %}
