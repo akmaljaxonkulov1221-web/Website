@@ -910,57 +910,81 @@ let selectedCode = null;
 let selectedArticle = null;
 let currentRotation = { x: 0, y: 0, z: 0 };
 
+// Initialize global legal data
+window.legalData = {{ legal_data|tojson|safe }};
+
 function selectCode(codeName) {
     selectedCode = codeName;
     
     // Update UI
-    document.querySelectorAll('.code-item').forEach(item => {
-        item.classList.remove('selected');
-    });
-    event.target.closest('.code-item').classList.add('selected');
+    var codeItems = document.querySelectorAll('.code-item');
+    for (var i = 0; i < codeItems.length; i++) {
+        codeItems[i].classList.remove('selected');
+    }
+    if (event && event.target) {
+        event.target.closest('.code-item').classList.add('selected');
+    }
     
     // Hide empty state, show articles
-    document.getElementById('emptyState').style.display = 'none';
-    document.getElementById('articlesContent').style.display = 'block';
+    var emptyState = document.getElementById('emptyState');
+    var articlesContent = document.getElementById('articlesContent');
+    if (emptyState) emptyState.style.display = 'none';
+    if (articlesContent) articlesContent.style.display = 'block';
+    
+    // Get articles data
+    var articles = [];
+    if (window.legalData && window.legalData[codeName] && window.legalData[codeName].moddalar) {
+        articles = window.legalData[codeName].moddalar;
+    }
     
     // Update header
-    document.getElementById('selectedCodeTitle').textContent = codeName;
-    document.getElementById('selectedCodeSubtitle').textContent = `${getCodeData(codeName).length} ta modda`;
+    var selectedCodeTitle = document.getElementById('selectedCodeTitle');
+    var selectedCodeSubtitle = document.getElementById('selectedCodeSubtitle');
+    if (selectedCodeTitle) selectedCodeTitle.textContent = codeName;
+    if (selectedCodeSubtitle) selectedCodeSubtitle.textContent = articles.length + ' ta modda';
     
-    // Load articles
-    const codeData = {{ legal_data|tojson }};
-    const articles = codeData[codeName]?.moddalar || [];
-    
-    const articlesGrid = document.getElementById('articlesGrid');
-    articlesGrid.innerHTML = '';
-    
-    articles.forEach(article => {
-        const articleCard = document.createElement('div');
-        articleCard.className = 'article-card';
-        articleCard.innerHTML = `
-            <div class="article-number">${article.modda}-modda</div>
-            <div class="article-title">${article.nomi}</div>
-            <div class="article-text">${(article.matn || '').substring(0, 150)}...</div>
-            <div class="article-actions">
-                <button class="action-btn view-3d" onclick="openArticleModal('${article.id}', '${article.modda}', '${article.nomi}', '${(article.matn || '').substring(0, 200)}')">
-                    <i class="fas fa-cube"></i> 3D
-                </button>
-                <button class="action-btn explain" onclick="openArticleModal('${article.id}', '${article.modda}', '${article.nomi}', '${(article.matn || '').substring(0, 200)}', 'explanation')">
-                    <i class="fas fa-lightbulb"></i> Tushuntirish
-                </button>
-                <button class="action-btn quiz" onclick="openArticleModal('${article.id}', '${article.modda}', '${article.nomi}', '${(article.matn || '').substring(0, 200)}', 'quiz')">
-                    <i class="fas fa-question"></i> Test
-                </button>
-                <button class="action-btn animate" onclick="openArticleModal('${article.id}', '${article.modda}', '${article.nomi}', '${(article.matn || '').substring(0, 200)}', 'animation')">
-                    <i class="fas fa-play"></i> Animatsiya
-                </button>
-                <button class="action-btn analyze" onclick="openArticleModal('${article.id}', '${article.modda}', '${article.nomi}', '${(article.matn || '').substring(0, 200)}', 'analysis')">
-                    <i class="fas fa-brain"></i> Tahlil
-                </button>
-            </div>
-        `;
-        articlesGrid.appendChild(articleCard);
-    });
+    // Display articles
+    var articlesGrid = document.getElementById('articlesGrid');
+    if (articlesGrid) {
+        articlesGrid.innerHTML = '';
+        
+        if (articles.length === 0) {
+            articlesGrid.innerHTML = '<div class="text-center text-muted">Bu kodeksda hali moddalar mavjud emas</div>';
+            return;
+        }
+        
+        for (var i = 0; i < articles.length; i++) {
+            var article = articles[i];
+            var articleCard = document.createElement('div');
+            articleCard.className = 'article-card';
+            
+            var articleText = (article.matn || '').substring(0, 150) + '...';
+            var shortText = (article.matn || '').substring(0, 200);
+            
+            articleCard.innerHTML = '<div class="article-number">' + article.modda + '-modda</div>' +
+                '<div class="article-title">' + article.nomi + '</div>' +
+                '<div class="article-text">' + articleText + '</div>' +
+                '<div class="article-actions">' +
+                    '<button class="action-btn view-3d" onclick="openArticleModal(\'' + article.id + '\', \'' + article.modda + '\', \'' + article.nomi + '\', \'' + shortText + '\')">' +
+                        '<i class="fas fa-cube"></i> 3D' +
+                    '</button>' +
+                    '<button class="action-btn explain" onclick="openArticleModal(\'' + article.id + '\', \'' + article.modda + '\', \'' + article.nomi + '\', \'' + shortText + '\', \'explanation\')">' +
+                        '<i class="fas fa-lightbulb"></i> Tushuntirish' +
+                    '</button>' +
+                    '<button class="action-btn quiz" onclick="openArticleModal(\'' + article.id + '\', \'' + article.modda + '\', \'' + article.nomi + '\', \'' + shortText + '\', \'quiz\')">' +
+                        '<i class="fas fa-question"></i> Test' +
+                    '</button>' +
+                    '<button class="action-btn animate" onclick="openArticleModal(\'' + article.id + '\', \'' + article.modda + '\', \'' + article.nomi + '\', \'' + shortText + '\', \'animation\')">' +
+                        '<i class="fas fa-play"></i> Animatsiya' +
+                    '</button>' +
+                    '<button class="action-btn analyze" onclick="openArticleModal(\'' + article.id + '\', \'' + article.modda + '\', \'' + article.nomi + '\', \'' + shortText + '\', \'analysis\')">' +
+                        '<i class="fas fa-brain"></i> Tahlil' +
+                    '</button>' +
+                '</div>';
+            
+            articlesGrid.appendChild(articleCard);
+        }
+    }
 }
 
 function getCodeData(codeName) {

@@ -28,7 +28,11 @@ def load_data():
     
     try:
         # To'liq legal codes ma'lumotlarini yuklash
-        if os.path.exists('complete_uzbekistan_legal_codes.json'):
+        if os.path.exists('legal_data.json'):
+            with open('legal_data.json', 'r', encoding='utf-8') as f:
+                LEGAL_DATA = json.load(f)
+                logger.info(f"Loaded legal data: {len(LEGAL_DATA)} codes")
+        elif os.path.exists('complete_uzbekistan_legal_codes.json'):
             with open('complete_uzbekistan_legal_codes.json', 'r', encoding='utf-8') as f:
                 complete_data = json.load(f)
                 LEGAL_DATA = complete_data.get('kodekslar', {})
@@ -505,8 +509,50 @@ def kahoot_quiz():
 @app.route('/subjects')
 def subjects():
     """Fanlar sahifasi - alohida kodekslar bo'limi"""
+    # Force load data to ensure we have legal data
+    import json
+    import os
+    
+    legal_data_to_use = {}
+    
+    try:
+        # Try legal_data.json first
+        if os.path.exists('legal_data.json'):
+            with open('legal_data.json', 'r', encoding='utf-8') as f:
+                legal_data_to_use = json.load(f)
+                logger.info(f"Loaded legal_data.json for subjects: {len(legal_data_to_use)} codes")
+        
+        # Try complete_uzbekistan_legal_codes.json
+        elif os.path.exists('complete_uzbekistan_legal_codes.json'):
+            with open('complete_uzbekistan_legal_codes.json', 'r', encoding='utf-8') as f:
+                complete_data = json.load(f)
+                legal_data_to_use = complete_data.get('kodekslar', {})
+                logger.info(f"Loaded complete_uzbekistan_legal_codes.json for subjects: {len(legal_data_to_use)} codes")
+        
+        # Create mock data if no files found
+        else:
+            legal_data_to_use = {
+                'Jinoyat kodeksi': {'moddalar': []},
+                'Fuqarolik kodeksi': {'moddalar': []},
+                'Ma\'muriy javobgarlik kodeksi': {'moddalar': []},
+                'Mehnat kodeksi': {'moddalar': []},
+                'Oila kodeksi': {'moddalar': []},
+                'Yer kodeksi': {'moddalar': []}
+            }
+            logger.warning("No legal data files found, using mock data for subjects")
+            
+    except Exception as e:
+        logger.error(f"Error loading legal data for subjects: {e}")
+        # Create minimal mock data
+        legal_data_to_use = {
+            'Jinoyat kodeksi': {'moddalar': []},
+            'Fuqarolik kodeksi': {'moddalar': []}
+        }
+    
+    logger.info(f"Rendering subjects page with {len(legal_data_to_use)} codes")
+    
     return render_template('subjects.html',
-                         legal_data=LEGAL_DATA,
+                         legal_data=legal_data_to_use,
                          analysis_report=ANALYSIS_REPORT)
 
 @app.route('/subject/<subject_id>')
