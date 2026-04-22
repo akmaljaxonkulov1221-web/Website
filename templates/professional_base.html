@@ -38,6 +38,7 @@
         .sidebar-header {
             padding: 24px;
             border-bottom: 1px solid #e2e8f0;
+            position: relative;
         }
         
         .sidebar-title {
@@ -53,6 +54,43 @@
         .sidebar-subtitle {
             font-size: 14px;
             color: #64748b;
+        }
+        
+        .sidebar-close {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar-close:hover {
+            background: #f1f5f9;
+            color: #1a1a1a;
+        }
+        
+        .mobile-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mobile-backdrop.show {
+            display: block;
+            opacity: 1;
         }
         
         .sidebar-nav {
@@ -225,19 +263,30 @@
             .sidebar {
                 transform: translateX(-100%);
                 transition: transform 0.3s ease;
+                width: 100%;
+                max-width: 320px;
             }
             
             .sidebar.open {
                 transform: translateX(0);
             }
             
+            .sidebar-close {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
             .main-content {
                 margin-left: 0;
-                padding: 16px;
+                padding: 60px 16px 16px;
+                width: 100%;
             }
             
             .mobile-menu-toggle {
-                display: block;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 position: fixed;
                 top: 16px;
                 left: 16px;
@@ -247,12 +296,50 @@
                 border-radius: 8px;
                 padding: 8px 12px;
                 cursor: pointer;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .mobile-menu-toggle:hover {
+                background: #f8fafc;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .content-card {
+                padding: 16px;
             }
         }
         
         @media (min-width: 769px) {
             .mobile-menu-toggle {
                 display: none;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+            
+            .main-content {
+                margin-left: 280px;
+                padding: 24px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .sidebar {
+                width: 320px;
+            }
+            
+            .main-content {
+                margin-left: 320px;
+                max-width: 1400px;
             }
         }
     </style>
@@ -263,6 +350,8 @@
     <div class="mobile-menu-toggle" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </div>
+    
+    <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeSidebar()"></div>
 
     <div class="app-container">
         <div class="sidebar" id="sidebar">
@@ -272,6 +361,9 @@
                     Legal System
                 </div>
                 <div class="sidebar-subtitle">Professional Platform</div>
+                <button class="sidebar-close" onclick="closeSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
             <nav class="sidebar-nav">
@@ -280,34 +372,22 @@
                     <a href="{{ url_for('index') }}" class="nav-item">
                         <i class="fas fa-home"></i> Asosiy sahifa
                     </a>
-                    <a href="{{ url_for('dashboard') }}" class="nav-item">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
                 </div>
                 
                 <div class="nav-section">
                     <div class="nav-section-title">Kodekslar</div>
                     <a href="{{ url_for('codes') }}" class="nav-item">
-                        <i class="fas fa-book"></i> Kodekslar ro'yxati
+                        <i class="fas fa-book"></i> Kodekslar
                     </a>
                     <a href="{{ url_for('subjects') }}" class="nav-item">
                         <i class="fas fa-book-open"></i> Fanlar
                     </a>
-                    <a href="{{ url_for('legal_map_interactive') }}" class="nav-item">
-                        <i class="fas fa-map"></i> Huquqiy xarita
-                    </a>
                 </div>
                 
                 <div class="nav-section">
-                    <div class="nav-section-title">Qidiruv va Tahlil</div>
+                    <div class="nav-section-title">Qidiruv</div>
                     <a href="{{ url_for('search') }}" class="nav-item">
                         <i class="fas fa-search"></i> Qidiruv
-                    </a>
-                    <a href="{{ url_for('analysis') }}" class="nav-item">
-                        <i class="fas fa-brain"></i> AI Tahlili
-                    </a>
-                    <a href="{{ url_for('visualization') }}" class="nav-item">
-                        <i class="fas fa-chart-bar"></i> Vizualizatsiya
                     </a>
                 </div>
                 
@@ -317,20 +397,10 @@
                         <i class="fas fa-chalkboard-teacher"></i> Vizual tushuntirish
                     </a>
                     <a href="{{ url_for('interactive_quiz') }}" class="nav-item">
-                        <i class="fas fa-question-circle"></i> Interaktiv test
-                    </a>
-                    <a href="{{ url_for('kahoot_quiz') }}" class="nav-item">
-                        <i class="fas fa-trophy"></i> Kahoot test
+                        <i class="fas fa-question-circle"></i> Test
                     </a>
                     <a href="{{ url_for('education_dashboard') }}" class="nav-item">
                         <i class="fas fa-graduation-cap"></i> Ta'lim dashboard
-                    </a>
-                </div>
-                
-                <div class="nav-section">
-                    <div class="nav-section-title">Boshqalar</div>
-                    <a href="{{ url_for('export_json') }}" class="nav-item">
-                        <i class="fas fa-download"></i> Eksport
                     </a>
                 </div>
             </nav>
@@ -347,7 +417,22 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobileBackdrop');
+            
             sidebar.classList.toggle('open');
+            if (sidebar.classList.contains('open')) {
+                backdrop.classList.add('show');
+            } else {
+                backdrop.classList.remove('show');
+            }
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobileBackdrop');
+            
+            sidebar.classList.remove('open');
+            backdrop.classList.remove('show');
         }
         
         // Set active nav item
@@ -366,12 +451,27 @@
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
             const toggle = document.querySelector('.mobile-menu-toggle');
+            const backdrop = document.getElementById('mobileBackdrop');
             
             if (window.innerWidth <= 768 && 
                 !sidebar.contains(event.target) && 
                 !toggle.contains(event.target) &&
                 sidebar.classList.contains('open')) {
-                sidebar.classList.remove('open');
+                closeSidebar();
+            }
+        });
+        
+        // Close sidebar on window resize if open
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        });
+        
+        // Close sidebar with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSidebar();
             }
         });
     </script>
