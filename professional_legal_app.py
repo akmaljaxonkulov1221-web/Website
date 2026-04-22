@@ -215,11 +215,6 @@ def debug():
     
     return jsonify(debug_info)
 
-@app.route('/case_law')
-def case_law():
-    """Case-Law Interactive - Alohida Interaktiv Yuridik O'quv Tizimi"""
-    return render_template('case_law_main.html')
-
 @app.route('/export/json')
 def export_json():
     """JSON formatida eksport"""
