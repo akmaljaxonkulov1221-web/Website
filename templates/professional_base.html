@@ -33,6 +33,8 @@
             height: 100vh;
             overflow-y: auto;
             z-index: 1000;
+            left: 0;
+            top: 0;
         }
         
         .sidebar-header {
@@ -144,6 +146,7 @@
             margin-left: 280px;
             padding: 24px;
             max-width: 1200px;
+            min-height: 100vh;
         }
         
         .page-header {
@@ -319,16 +322,21 @@
         
         @media (min-width: 769px) {
             .mobile-menu-toggle {
-                display: none;
+                display: none !important;
             }
             
             .sidebar {
+                transform: translateX(0) !important;
                 width: 280px;
             }
             
             .main-content {
                 margin-left: 280px;
                 padding: 24px;
+            }
+            
+            .sidebar-close {
+                display: none !important;
             }
         }
         
