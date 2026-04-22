@@ -74,7 +74,28 @@ def index():
 @app.route('/dashboard')
 def dashboard():
     """Dashboard - barcha foydalanuvchilar uchun ochiq"""
+    # Mock user data
+    user = {
+        'first_name': 'Student',
+        'last_name': 'User',
+        'email': 'student@example.com'
+    }
+    
+    # Mock data for dashboard
+    completed_cases = 12
+    recent_results = [
+        {
+            'percentage': 85,
+            'completed_at': datetime(2024, 4, 22)
+        }
+    ]
+    subjects = ['Jinoyat kodeksi', 'Fuqarolik kodeksi', 'Ma\'muriy kodeksi']
+    
     return render_template('student_dashboard.html',
+                         user=user,
+                         completed_cases=completed_cases,
+                         recent_results=recent_results,
+                         subjects=subjects,
                          legal_data=LEGAL_DATA,
                          analyzed_data=ANALYZED_DATA,
                          analysis_report=ANALYSIS_REPORT)
@@ -194,6 +215,23 @@ def kahoot_quiz():
 def subjects():
     """Fanlar sahifasi - alohida kodekslar bo'limi"""
     return render_template('subjects.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
+@app.route('/subject/<subject_id>')
+def subject_detail(subject_id):
+    """Fan tafsilotlari"""
+    # Mock subject data
+    subject_data = {
+        'id': subject_id,
+        'name': subject_id.replace('_', ' ').title(),
+        'description': f'{subject_id.replace("_", " ").title()} bo\'yicha to\'liq ma\'lumot',
+        'articles_count': len(LEGAL_DATA.get(subject_id.replace('_', ' ').title(), {}).get('moddalar', [])),
+        'difficulty': 'O\'rta'
+    }
+    
+    return render_template('subject_detail.html',
+                         subject=subject_data,
                          legal_data=LEGAL_DATA,
                          analysis_report=ANALYSIS_REPORT)
 

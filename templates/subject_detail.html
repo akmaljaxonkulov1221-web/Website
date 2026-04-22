@@ -1,0 +1,74 @@
+{% extends "professional_base.html" %}
+
+{% block title %}{{ subject.name }} - Professional Legal System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ subject.name }}</h1>
+    <p class="page-subtitle">{{ subject.description }}</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-value">{{ subject.articles_count }}</div>
+        <div class="stat-label">Moddalar</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-signal"></i>
+        </div>
+        <div class="stat-value">{{ subject.difficulty }}</div>
+        <div class="stat-label">Qiyinlik darajasi</div>
+    </div>
+</div>
+
+<div class="content-card">
+    <h2 class="mb-4">Fan haqida</h2>
+    <p class="mb-4">{{ subject.description }}</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Asosiy ma'lumotlar:</h5>
+            <ul>
+                <li>Moddalar soni: {{ subject.articles_count }}</li>
+                <li>Qiyinlik darajasi: {{ subject.difficulty }}</li>
+                <li>O'qish vaqti: 2-3 hafta</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h5>O'rganish bo'limlari:</h5>
+            <ul>
+                <li>Asosiy tushunchalar</li>
+                <li>Amaliy misollar</li>
+                <li>Testlar</li>
+                <li>Vizual tushuntirishlar</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <h2 class="mb-4">Tezkor harakatlar</h2>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('subjects') }}" class="btn btn-outline-primary w-100">
+                <i class="fas fa-arrow-left"></i> Orqaga
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('interactive_quiz') }}" class="btn btn-outline-success w-100">
+                <i class="fas fa-question-circle"></i> Test boshlash
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('visual_explanations') }}" class="btn btn-outline-info w-100">
+                <i class="fas fa-chalkboard-teacher"></i> Tushuntirish
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
