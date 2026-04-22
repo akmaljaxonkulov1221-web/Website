@@ -164,7 +164,7 @@ def article_detail(code_name, article_id):
             analyzed_article = art
             break
     
-    return render_template('case_law_article_detail.html',
+    return render_template('article_detail.html',
                          code_name=code_name,
                          article=article,
                          analyzed_article=analyzed_article)

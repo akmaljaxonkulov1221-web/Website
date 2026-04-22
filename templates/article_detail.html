@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "professional_base.html" %}
 
-{% block title %}{{ article.number }} - Case-Law Interactive{% endblock %}
+{% block title %}{{ article.get('modda', article.get('id', 'Noma\'lum')) }}-modda - {{ code_name }}{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -10,11 +10,11 @@
             <div>
                 <div class="flex items-center mb-2">
                     <span class="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                        {{ article.subject.name }}
+                        {{ code_name }}
                     </span>
-                    <span class="ml-2 text-sm text-gray-500">{{ article.number }}</span>
+                    <span class="ml-2 text-sm text-gray-500">{{ article.get('modda', article.get('id', 'Noma\'lum')) }}-modda</span>
                 </div>
-                <h1 class="text-3xl font-bold text-gray-900">{{ article.title }}</h1>
+                <h1 class="text-3xl font-bold text-gray-900">{{ article.get('nomi', 'Noma\'lum modda') }}</h1>
             </div>
             <div class="flex space-x-2">
                 <button class="p-2 text-gray-400 hover:text-yellow-500 transition-colors">
@@ -53,7 +53,7 @@
                 <div class="prose max-w-none">
                     <div class="bg-gray-50 rounded-lg p-6">
                         <h3 class="text-xl font-semibold mb-4">Modda mazmuni</h3>
-                        <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ article.content }}</div>
+                        <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ article.get('matn', 'Matn mavjud emas') }}</div>
                     </div>
                 </div>
             </div>
