@@ -13,304 +13,331 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #2c3e50;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background: #f8fafc;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         
-        .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .app-container {
+            display: flex;
+            min-height: 100vh;
         }
         
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5rem;
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
         }
         
-        .nav-link {
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .sidebar-nav {
+            padding: 16px;
+        }
+        
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            padding: 0 12px;
+        }
+        
+        .nav-item {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: #475569;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
             font-weight: 500;
-            transition: all 0.3s ease;
         }
         
-        .nav-link:hover {
-            color: #fff !important;
-            transform: translateY(-2px);
+        .nav-item:hover {
+            background: #f1f5f9;
+            color: #1a1a1a;
+            transform: translateX(2px);
+        }
+        
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .nav-item i {
+            width: 20px;
+            margin-right: 8px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 24px;
+            max-width: 1200px;
+        }
+        
+        .page-header {
+            margin-bottom: 32px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            font-size: 16px;
+            color: #64748b;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: #3b82f6;
+            font-size: 20px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
         }
         
         .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        
-        .card-header {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            background: #3b82f6;
             border: none;
-            border-radius: 25px;
-            padding: 10px 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: #2563eb;
+            transform: translateY(-1px);
         }
         
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s ease;
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
         }
         
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        .progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
         }
         
-        .stats-number {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
         }
         
-        .legal-code-card {
-            border-left: 5px solid var(--secondary-color);
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
+        .text-gradient {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
-        .legal-code-card:hover {
-            border-left-width: 10px;
-            transform: translateX(5px);
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 16px;
+                left: 16px;
+                z-index: 1001;
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 8px 12px;
+                cursor: pointer;
+            }
         }
         
-        .article-item {
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .article-item:hover {
-            background-color: #f8f9fa;
-            padding-left: 20px;
-        }
-        
-        .analysis-element {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            margin: 3px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .confidence-badge {
-            background: linear-gradient(135deg, var(--success-color), #229954);
-            color: white;
-            padding: 8px 15px;
-            border-radius: 25px;
-            font-weight: bold;
-        }
-        
-        .search-box {
-            border-radius: 25px;
-            border: 2px solid var(--secondary-color);
-            padding: 12px 25px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .search-box:focus {
-            box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
-            border-color: var(--primary-color);
-        }
-        
-        .footer {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 30px 0;
-            margin-top: 50px;
-        }
-        
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-        }
-        
-        .severity-high {
-            color: var(--danger-color);
-            font-weight: bold;
-        }
-        
-        .severity-medium {
-            color: var(--warning-color);
-            font-weight: bold;
-        }
-        
-        .severity-low {
-            color: var(--success-color);
-            font-weight: bold;
-        }
-        
-        .complexity-high {
-            background-color: #fee;
-            border-left: 5px solid var(--danger-color);
-        }
-        
-        .complexity-medium {
-            background-color: #fef9e7;
-            border-left: 5px solid var(--warning-color);
-        }
-        
-        .complexity-low {
-            background-color: #eafaf1;
-            border-left: 5px solid var(--success-color);
+        @media (min-width: 769px) {
+            .mobile-menu-toggle {
+                display: none;
+            }
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-balance-scale"></i> Legal System Pro
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-home"></i> Asosiy
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('codes') }}">
-                            <i class="fas fa-book"></i> Kodekslar
-                        </a>
-                        <a class="nav-link" href="{{ url_for('subjects') }}">
-                            <i class="fas fa-book-open"></i> Fanlar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('search') }}">
-                            <i class="fas fa-search"></i> Qidiruv
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('analysis') }}">
-                            <i class="fas fa-brain"></i> AI Tahlili
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('visualization') }}">
-                            <i class="fas fa-chart-bar"></i> Vizualizatsiya
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('visual_explanations') }}">
-                            <i class="fas fa-chalkboard-teacher"></i> Vizual Tushuntirish
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('interactive_quiz') }}">
-                            <i class="fas fa-brain"></i> Interaktiv Test
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('legal_map_interactive') }}">
-                            <i class="fas fa-map"></i> Huquqiy Xarita
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('kahoot_quiz') }}">
-                            <i class="fas fa-trophy"></i> Kahoot Test
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('education_dashboard') }}">
-                            <i class="fas fa-graduation-cap"></i> Ta'lim Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('export_json') }}">
-                            <i class="fas fa-download"></i> Eksport
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
 
-    <!-- Main Content -->
-    <main class="container my-4">
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="fas fa-balance-scale"></i> Professional Legal System</h5>
-                    <p>O'zbekiston Respublikasi qonun hujjatlarining AI-powered tahlil tizimi</p>
+    <div class="app-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">
+                    <i class="fas fa-balance-scale"></i>
+                    Legal System
                 </div>
-                <div class="col-md-6 text-end">
-                    <h5><i class="fas fa-info-circle"></i> Ma'lumot</h5>
-                    <p>Version 2.0 | © 2024 Professional Legal System</p>
-                </div>
+                <div class="sidebar-subtitle">Professional Platform</div>
             </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Asosiy</div>
+                    <a href="{{ url_for('index') }}" class="nav-item">
+                        <i class="fas fa-home"></i> Asosiy sahifa
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="nav-item">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Kodekslar</div>
+                    <a href="{{ url_for('codes') }}" class="nav-item">
+                        <i class="fas fa-book"></i> Kodekslar ro'yxati
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="nav-item">
+                        <i class="fas fa-book-open"></i> Fanlar
+                    </a>
+                    <a href="{{ url_for('legal_map_interactive') }}" class="nav-item">
+                        <i class="fas fa-map"></i> Huquqiy xarita
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Qidiruv va Tahlil</div>
+                    <a href="{{ url_for('search') }}" class="nav-item">
+                        <i class="fas fa-search"></i> Qidiruv
+                    </a>
+                    <a href="{{ url_for('analysis') }}" class="nav-item">
+                        <i class="fas fa-brain"></i> AI Tahlili
+                    </a>
+                    <a href="{{ url_for('visualization') }}" class="nav-item">
+                        <i class="fas fa-chart-bar"></i> Vizualizatsiya
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Ta'lim</div>
+                    <a href="{{ url_for('visual_explanations') }}" class="nav-item">
+                        <i class="fas fa-chalkboard-teacher"></i> Vizual tushuntirish
+                    </a>
+                    <a href="{{ url_for('interactive_quiz') }}" class="nav-item">
+                        <i class="fas fa-question-circle"></i> Interaktiv test
+                    </a>
+                    <a href="{{ url_for('kahoot_quiz') }}" class="nav-item">
+                        <i class="fas fa-trophy"></i> Kahoot test
+                    </a>
+                    <a href="{{ url_for('education_dashboard') }}" class="nav-item">
+                        <i class="fas fa-graduation-cap"></i> Ta'lim dashboard
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Boshqalar</div>
+                    <a href="{{ url_for('export_json') }}" class="nav-item">
+                        <i class="fas fa-download"></i> Eksport
+                    </a>
+                </div>
+            </nav>
         </div>
-    </footer>
-
-    <!-- Loading Spinner -->
-    <div class="loading-spinner">
-        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-            <span class="visually-hidden">Yuklanmoqda...</span>
+        
+        <div class="main-content">
+            {% block content %}{% endblock %}
         </div>
     </div>
 
@@ -318,41 +345,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Loading spinner
-        function showLoading() {
-            document.querySelector('.loading-spinner').style.display = 'block';
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
         }
         
-        function hideLoading() {
-            document.querySelector('.loading-spinner').style.display = 'none';
-        }
-        
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+        // Set active nav item
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                if (item.getAttribute('href') === currentPath) {
+                    item.classList.add('active');
                 }
             });
         });
         
-        // Search functionality
-        function performSearch(query) {
-            if (query.trim()) {
-                showLoading();
-                window.location.href = `/search?q=${encodeURIComponent(query)}`;
-            }
-        }
-        
-        // Enter key for search
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && e.target.classList.contains('search-box')) {
-                performSearch(e.target.value);
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !toggle.contains(event.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
             }
         });
     </script>
