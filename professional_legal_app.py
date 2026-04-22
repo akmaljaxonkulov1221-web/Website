@@ -190,6 +190,13 @@ def kahoot_quiz():
                          legal_data=LEGAL_DATA,
                          analysis_report=ANALYSIS_REPORT)
 
+@app.route('/subjects')
+def subjects():
+    """Fanlar sahifasi - alohida kodekslar bo'limi"""
+    return render_template('subjects.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
 @app.route('/education-dashboard')
 def education_dashboard():
     """Ta'lim dashboardi"""
