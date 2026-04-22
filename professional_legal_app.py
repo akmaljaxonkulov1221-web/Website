@@ -217,8 +217,8 @@ def debug():
 
 @app.route('/case_law')
 def case_law():
-    """Case-Law Interactive - Professional Legal System ichida"""
-    return render_template('case_law_interactive.html')
+    """Case-Law Interactive - Alohida Interaktiv Yuridik O'quv Tizimi"""
+    return render_template('case_law_main.html')
 
 @app.route('/export/json')
 def export_json():
