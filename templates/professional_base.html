@@ -35,64 +35,44 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
-        .nav-header {
-            padding: 16px 24px;
-            border-bottom: 1px solid #e2e8f0;
+        .nav-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 12px 24px;
         }
         
-        .nav-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1a1a1a;
+        .nav-brand {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
         }
         
-        .nav-content {
-            padding: 16px 24px;
+        .nav-brand i {
+            color: #3b82f6;
         }
         
-        .nav-sections {
+        .nav-menu {
             display: flex;
-            gap: 32px;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-        
-        .nav-section {
-            min-width: 150px;
-        }
-        
-        .nav-section-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
-        }
-        
-        .nav-items {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            align-items: center;
+            gap: 8px;
         }
         
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            border-radius: 6px;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
             color: #475569;
             text-decoration: none;
             transition: all 0.2s ease;
             font-weight: 500;
             font-size: 14px;
+            white-space: nowrap;
         }
         
         .nav-item:hover {
@@ -106,9 +86,7 @@
         }
         
         .nav-item i {
-            width: 16px;
-            text-align: center;
-            font-size: 14px;
+            font-size: 16px;
         }
         
         .main-content {
@@ -232,17 +210,29 @@
         }
         
         @media (max-width: 768px) {
-            .nav-sections {
-                flex-direction: column;
-                gap: 16px;
-            }
-            
-            .nav-header {
+            .nav-container {
                 padding: 12px 16px;
             }
             
-            .nav-content {
-                padding: 12px 16px;
+            .nav-brand {
+                font-size: 16px;
+            }
+            
+            .nav-menu {
+                gap: 4px;
+            }
+            
+            .nav-item {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+            
+            .nav-item i {
+                font-size: 14px;
+            }
+            
+            .nav-item span {
+                display: none;
             }
             
             .main-content {
@@ -263,20 +253,29 @@
             }
         }
         
-        @media (min-width: 769px) {
-            .nav-sections {
-                gap: 48px;
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .nav-container {
+                padding: 12px 20px;
             }
             
-            .nav-section {
-                min-width: 180px;
+            .nav-menu {
+                gap: 6px;
+            }
+            
+            .nav-item {
+                padding: 8px 14px;
             }
         }
         
         @media (min-width: 1024px) {
+            .nav-container {
+                padding: 12px 32px;
+            }
+            
             .main-content {
                 max-width: 1400px;
                 margin: 0 auto;
+                padding: 32px;
             }
         }
     </style>
@@ -286,60 +285,41 @@
 <body>
     <div class="app-container">
         <nav class="top-nav">
-            <div class="nav-header">
-                <div class="nav-title">
+            <div class="nav-container">
+                <div class="nav-brand">
                     <i class="fas fa-balance-scale"></i>
                     Legal System
                 </div>
-                <div class="nav-subtitle">Professional Platform</div>
-            </div>
-            
-            <div class="nav-content">
-                <div class="nav-sections">
-                    <div class="nav-section">
-                        <div class="nav-section-title">Asosiy</div>
-                        <div class="nav-items">
-                            <a href="{{ url_for('index') }}" class="nav-item">
-                                <i class="fas fa-home"></i> Asosiy sahifa
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="nav-section">
-                        <div class="nav-section-title">Kodekslar</div>
-                        <div class="nav-items">
-                            <a href="{{ url_for('codes') }}" class="nav-item">
-                                <i class="fas fa-book"></i> Kodekslar
-                            </a>
-                            <a href="{{ url_for('subjects') }}" class="nav-item">
-                                <i class="fas fa-book-open"></i> Fanlar
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="nav-section">
-                        <div class="nav-section-title">Qidiruv</div>
-                        <div class="nav-items">
-                            <a href="{{ url_for('search') }}" class="nav-item">
-                                <i class="fas fa-search"></i> Qidiruv
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="nav-section">
-                        <div class="nav-section-title">Ta'lim</div>
-                        <div class="nav-items">
-                            <a href="{{ url_for('visual_explanations') }}" class="nav-item">
-                                <i class="fas fa-chalkboard-teacher"></i> Vizual tushuntirish
-                            </a>
-                            <a href="{{ url_for('interactive_quiz') }}" class="nav-item">
-                                <i class="fas fa-question-circle"></i> Test
-                            </a>
-                            <a href="{{ url_for('education_dashboard') }}" class="nav-item">
-                                <i class="fas fa-graduation-cap"></i> Ta'lim dashboard
-                            </a>
-                        </div>
-                    </div>
+                
+                <div class="nav-menu">
+                    <a href="{{ url_for('index') }}" class="nav-item">
+                        <i class="fas fa-home"></i>
+                        <span>Asosiy</span>
+                    </a>
+                    <a href="{{ url_for('codes') }}" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        <span>Kodekslar</span>
+                    </a>
+                    <a href="{{ url_for('subjects') }}" class="nav-item">
+                        <i class="fas fa-book-open"></i>
+                        <span>Fanlar</span>
+                    </a>
+                    <a href="{{ url_for('search') }}" class="nav-item">
+                        <i class="fas fa-search"></i>
+                        <span>Qidiruv</span>
+                    </a>
+                    <a href="{{ url_for('visual_explanations') }}" class="nav-item">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>Tushuntirish</span>
+                    </a>
+                    <a href="{{ url_for('interactive_quiz') }}" class="nav-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Test</span>
+                    </a>
+                    <a href="{{ url_for('education_dashboard') }}" class="nav-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Dashboard</span>
+                    </a>
                 </div>
             </div>
         </nav>
