@@ -1,0 +1,733 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Ta'lim Dashboard - Professional Legal System{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.dashboard-header {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.user-details h3 {
+    margin: 0;
+    color: #333;
+}
+
+.user-details p {
+    margin: 0;
+    color: #666;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    font-size: 24px;
+    color: white;
+}
+
+.stat-icon.blue {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.stat-icon.green {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.stat-icon.orange {
+    background: linear-gradient(135deg, #fd7e14, #e83e8c);
+}
+
+.stat-icon.purple {
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+.progress-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.progress-item {
+    margin-bottom: 20px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.progress-bar-custom {
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    transition: width 0.5s ease;
+}
+
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.course-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.course-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.course-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 20px;
+}
+
+.course-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.course-progress {
+    margin: 15px 0;
+}
+
+.course-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-education {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-education.primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.btn-education.secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+}
+
+.btn-education.success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.activity-feed {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.activity-item {
+    display: flex;
+    align-items: start;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.activity-time {
+    color: #666;
+    font-size: 14px;
+}
+
+.teacher-controls {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.control-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-control {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-control.create {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.btn-control.manage {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.btn-control.view {
+    background: linear-gradient(135deg, #fd7e14, #e83e8c);
+    color: white;
+}
+
+.student-list {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.student-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.student-item:hover {
+    background: #e9ecef;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+}
+
+.student-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.student-details h5 {
+    margin: 0;
+    color: #333;
+}
+
+.student-details p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.student-progress {
+    text-align: right;
+}
+
+.progress-percentage {
+    font-weight: bold;
+    color: #007bff;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4 fw-bold text-primary">
+            <i class="fas fa-graduation-cap"></i> Ta'lim Dashboard
+        </h1>
+        <p class="lead text-muted">Teacher/Student login tizimi va progress tracking</p>
+    </div>
+</div>
+
+<!-- Dashboard Header -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="user-info">
+            <div class="user-details">
+                <h3>{{ user.name if user else 'John Doe' }}</h3>
+                <p>{{ user.role if user else 'Student' }} - {{ user.email if user else 'student@example.com' }}</p>
+            </div>
+            <div class="user-avatar">
+                {{ user.name[0] if user else 'S' }}
+            </div>
+        </div>
+        
+        <div class="text-end">
+            <button class="btn btn-outline-primary" onclick="showProfile()">
+                <i class="fas fa-user"></i> Profil
+            </button>
+            <button class="btn btn-outline-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Chiqish
+            </button>
+        </div>
+    </div>
+    
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-number">6</div>
+            <div class="stat-label">Kurslar</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stat-number">85%</div>
+            <div class="stat-label">O'rtacha ball</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">24</div>
+            <div class="stat-label">Soat o'qilgan</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <div class="stat-number">3</div>
+            <div class="stat-label">Sertifikatlar</div>
+        </div>
+    </div>
+    
+    <!-- Progress Section -->
+    <div class="progress-section">
+        <h4><i class="fas fa-chart-line"></i> Umumiy progress</h4>
+        
+        <div class="progress-item">
+            <div class="progress-header">
+                <span>Jinoyat huquqi</span>
+                <span>75%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 75%"></div>
+            </div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="progress-header">
+                <span>Fuqarolik huquqi</span>
+                <span>90%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 90%"></div>
+            </div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="progress-header">
+                <span>Ma'muriy huquq</span>
+                <span>60%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 60%"></div>
+            </div>
+        </div>
+        
+        <div class="progress-item">
+            <div class="progress-header">
+                <span>Mehnat huquqi</span>
+                <span>85%</span>
+            </div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: 85%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Course Grid -->
+    <div class="course-grid">
+        <div class="course-card">
+            <div class="course-header">
+                <div class="course-icon" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                <h5 class="course-title">Jinoyat huquqi asoslari</h5>
+            </div>
+            <div class="course-progress">
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <small class="text-muted">15/20 dars tugallangan</small>
+            </div>
+            <div class="course-actions">
+                <button class="btn-education primary" onclick="continueCourse('crime')">
+                    <i class="fas fa-play"></i> Davom ettirish
+                </button>
+                <button class="btn-education secondary" onclick="viewCourseDetails('crime')">
+                    <i class="fas fa-info-circle"></i> Ma'lumot
+                </button>
+            </div>
+        </div>
+        
+        <div class="course-card">
+            <div class="course-header">
+                <div class="course-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <h5 class="course-title">Fuqarolik huquqi</h5>
+            </div>
+            <div class="course-progress">
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: 90%"></div>
+                </div>
+                <small class="text-muted">18/20 dars tugallangan</small>
+            </div>
+            <div class="course-actions">
+                <button class="btn-education primary" onclick="continueCourse('civil')">
+                    <i class="fas fa-play"></i> Davom ettirish
+                </button>
+                <button class="btn-education secondary" onclick="viewCourseDetails('civil')">
+                    <i class="fas fa-info-circle"></i> Ma'lumot
+                </button>
+            </div>
+        </div>
+        
+        <div class="course-card">
+            <div class="course-header">
+                <div class="course-icon" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h5 class="course-title">Ma'muriy javobgarlik</h5>
+            </div>
+            <div class="course-progress">
+                <div class="progress-bar-custom">
+                    <div class="progress-fill" style="width: 60%"></div>
+                </div>
+                <small class="text-muted">12/20 dars tugallangan</small>
+            </div>
+            <div class="course-actions">
+                <button class="btn-education primary" onclick="continueCourse('admin')">
+                    <i class="fas fa-play"></i> Davom ettirish
+                </button>
+                <button class="btn-education secondary" onclick="viewCourseDetails('admin')">
+                    <i class="fas fa-info-circle"></i> Ma'lumot
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Teacher Controls (only for teachers) -->
+    {% if user and user.role == 'teacher' %}
+    <div class="teacher-controls">
+        <h4><i class="fas fa-chalkboard-teacher"></i> O'qituvchi paneli</h4>
+        <div class="control-buttons">
+            <button class="btn-control create" onclick="createTest()">
+                <i class="fas fa-plus"></i> Test yaratish
+            </button>
+            <button class="btn-control manage" onclick="manageStudents()">
+                <i class="fas fa-users"></i> O'quvchilar
+            </button>
+            <button class="btn-control view" onclick="viewAnalytics()">
+                <i class="fas fa-chart-bar"></i> Analitika
+            </button>
+        </div>
+    </div>
+    
+    <!-- Student List -->
+    <div class="student-list">
+        <h4><i class="fas fa-users"></i> O'quvchilar ro'yxati</h4>
+        
+        <div class="student-item">
+            <div class="student-info">
+                <div class="student-avatar">AS</div>
+                <div class="student-details">
+                    <h5>Ahmed Student</h5>
+                    <p>ahmed.student@example.com</p>
+                </div>
+            </div>
+            <div class="student-progress">
+                <div class="progress-percentage">78%</div>
+                <small class="text-muted">Progress</small>
+            </div>
+        </div>
+        
+        <div class="student-item">
+            <div class="student-info">
+                <div class="student-avatar">BS</div>
+                <div class="student-details">
+                    <h5>Bobur Student</h5>
+                    <p>bobur.student@example.com</p>
+                </div>
+            </div>
+            <div class="student-progress">
+                <div class="progress-percentage">92%</div>
+                <small class="text-muted">Progress</small>
+            </div>
+        </div>
+        
+        <div class="student-item">
+            <div class="student-info">
+                <div class="student-avatar">CS</div>
+                <div class="student-details">
+                    <h5>Camila Student</h5>
+                    <p>camila.student@example.com</p>
+                </div>
+            </div>
+            <div class="student-progress">
+                <div class="progress-percentage">65%</div>
+                <small class="text-muted">Progress</small>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Activity Feed -->
+    <div class="activity-feed">
+        <h4><i class="fas fa-history"></i> Oxirgi faoliyatlar</h4>
+        
+        <div class="activity-item">
+            <div class="activity-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">Jinoyat huquqi testini tugatdingiz</div>
+                <div class="activity-time">2 soat oldin - Ball: 85/100</div>
+            </div>
+        </div>
+        
+        <div class="activity-item">
+            <div class="activity-icon" style="background: linear-gradient(135deg, #007bff, #0056b3);">
+                <i class="fas fa-play"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">Fuqarolik huquqi kursini boshladingiz</div>
+                <div class="activity-time">1 kun oldin</div>
+            </div>
+        </div>
+        
+        <div class="activity-item">
+            <div class="activity-icon" style="background: linear-gradient(135deg, #fd7e14, #e83e8c);">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">Sertifikat oldingiz: Huquqiy asoslar</div>
+                <div class="activity-time">3 kun oldin</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Mock user data (in real app, this would come from backend)
+const currentUser = {
+    name: '{{ user.name if user else "Student User" }}',
+    role: '{{ user.role if user else "student" }}',
+    email: '{{ user.email if user else "student@example.com" }}'
+};
+
+function continueCourse(courseId) {
+    // Navigate to course content
+    window.location.href = `/course/${courseId}`;
+}
+
+function viewCourseDetails(courseId) {
+    // Show course details modal
+    console.log(`Viewing details for course: ${courseId}`);
+}
+
+function showProfile() {
+    // Show user profile modal
+    console.log('Showing profile');
+}
+
+function logout() {
+    // Logout and redirect to login
+    window.location.href = '/login';
+}
+
+// Teacher functions
+function createTest() {
+    // Navigate to test creation page
+    window.location.href = '/teacher/create-test';
+}
+
+function manageStudents() {
+    // Navigate to student management
+    window.location.href = '/teacher/students';
+}
+
+function viewAnalytics() {
+    // Navigate to analytics dashboard
+    window.location.href = '/teacher/analytics';
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Load real-time data
+    updateDashboardStats();
+    
+    // Set up periodic updates
+    setInterval(updateDashboardStats, 30000); // Update every 30 seconds
+});
+
+function updateDashboardStats() {
+    // In real app, this would fetch data from API
+    console.log('Updating dashboard stats...');
+}
+
+// Progress animations
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('.progress-fill');
+    
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 100);
+    });
+});
+</script>
+{% endblock %}

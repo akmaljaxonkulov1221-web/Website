@@ -1,0 +1,436 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Interaktiv Testlar - Professional Legal System{% endblock %}
+
+{% block extra_css %}
+<style>
+.quiz-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.quiz-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.quiz-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.question-box {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    border-left: 4px solid #007bff;
+}
+
+.answer-buttons {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    justify-content: center;
+}
+
+.btn-yes {
+    background: #28a745;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-yes:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.btn-no {
+    background: #dc3545;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-no:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+.explanation-box {
+    background: #e7f3ff;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    border-left: 4px solid #007bff;
+    display: none;
+}
+
+.correct-answer {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+}
+
+.wrong-answer {
+    background: #f8d7da;
+    border-left: 4px solid #dc3545;
+}
+
+.progress-bar-custom {
+    height: 25px;
+    border-radius: 15px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.score-display {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.score-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.quiz-category {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #007bff;
+    color: white;
+    font-size: 14px;
+    margin: 5px;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes pulse-green {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.pulse-green {
+    animation: pulse-green 1s;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4 fw-bold text-success">
+            <i class="fas fa-brain"></i> Interaktiv Testlar
+        </h1>
+        <p class="lead text-muted">Ha/Yo'q javob tizimi orqali huquqiy tushunchalarni sinab ko'ring</p>
+    </div>
+</div>
+
+<!-- Quiz Categories -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="text-center">
+            <span class="quiz-category">Jinoyat huquqi</span>
+            <span class="quiz-category">Fuqarolik huquqi</span>
+            <span class="quiz-category">Ma'muriy huquq</span>
+            <span class="quiz-category">Mehnat huquqi</span>
+        </div>
+    </div>
+</div>
+
+<!-- Progress and Score -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="progress-bar-custom">
+            <div class="progress-fill" id="progressBar" style="width: 0%">
+                <span id="progressText">0/10</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="score-display">
+            <div class="score-number" id="scoreDisplay">0</div>
+            <div>To'g'ri javoblar</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Quiz Container -->
+<div class="quiz-container">
+    <div class="quiz-card">
+        <h3 class="text-center mb-4">Huquqiy test</h3>
+        
+        <div id="quizContent">
+            <!-- Question 1 -->
+            <div class="question-item" data-question="1">
+                <div class="question-box">
+                    <h4>Savol 1/10</h4>
+                    <p class="lead">16 yoshli shaxs o'g'irlik jinoyatini sodir etsa, u javobgarlikka tortiladimi?</p>
+                    <small class="text-muted">Jinoyat kodeksiga ko'ra, 16 yoshdan katta shaxslar javobgarlikka tortiladi</small>
+                </div>
+                
+                <div class="answer-buttons">
+                    <button class="btn-yes" onclick="checkAnswer(1, true, '16 yoshdan katta shaxslar jinoyat javobgarligiga tortiladi. Bu O\'zbekiston JK 11-moddasida belgilangan.')">
+                        <i class="fas fa-check"></i> Ha
+                    </button>
+                    <button class="btn-no" onclick="checkAnswer(1, false, '16 yoshdan katta shaxslar jinoyat javobgarligiga tortiladi. Ba\'zi og\'ir jinoyatlar uchun yosh chegarasi 14 yosh.')">
+                        <i class="fas fa-times"></i> Yo'q
+                    </button>
+                </div>
+                
+                <div class="explanation-box" id="explanation-1">
+                    <h5><i class="fas fa-info-circle"></i> Tushuntirish:</h5>
+                    <p id="explanation-text-1"></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quiz Completion -->
+        <div id="quizCompletion" style="display: none;">
+            <div class="text-center">
+                <h3>Test tugadi!</h3>
+                <div class="score-display mt-4">
+                    <div class="score-number" id="finalScore">0/10</div>
+                    <div>Natijangiz</div>
+                </div>
+                
+                <div class="mt-4">
+                    <h5 id="resultMessage"></h5>
+                    <button class="btn btn-primary btn-lg" onclick="restartQuiz()">
+                        <i class="fas fa-redo"></i> Qayta boshlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Quiz Sets -->
+<div class="row mt-5">
+    <div class="col-md-6">
+        <div class="quiz-card">
+            <h4><i class="fas fa-gavel"></i> Jinoyat tarkibi testi</h4>
+            <p>Jinoyat tarkibining elementlarini tekshiring</p>
+            <button class="btn btn-outline-primary" onclick="startQuiz('crime-composition')">
+                Boshlash
+            </button>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="quiz-card">
+            <h4><i class="fas fa-balance-scale"></i> Huquqiy mas'uliyat</h4>
+            <p>Yuridik va fizik shaxslarning mas'uliyati</p>
+            <button class="btn btn-outline-primary" onclick="startQuiz('legal-responsibility')">
+                Boshlash
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentQuestion = 1;
+let score = 0;
+let totalQuestions = 10;
+let quizData = [];
+
+// Quiz questions database
+const quizQuestions = {
+    'general': [
+        {
+            id: 1,
+            question: "16 yoshli shaxs o'g'irlik jinoyatini sodir etsa, u javobgarlikka tortiladimi?",
+            explanation: "16 yoshdan katta shaxslar jinoyat javobgarligiga tortiladi. Bu O'zbekiston JK 11-moddasida belgilangan.",
+            correct: true
+        },
+        {
+            id: 2,
+            question: "Jismoniy shaxs jinoyat subjekti bo'la oladimi?",
+            explanation: "Faqat jismoniy shaxs (inson) jinoyat subjekti bo'la oladi. Yuridik shaxslar javobgarlikka tortilmaydi.",
+            correct: true
+        },
+        {
+            id: 3,
+            question: "Aqli zaif shaxs o'z harakatlarini anglab yetishi mumkinmi?",
+            explanation: "Aqli zaif shaxslar o'z harakatlarining ahamiyatini to'liq anglab yetmaydi, shu sababli ular javobgarlikdan ozod qilinishi mumkin.",
+            correct: false
+        },
+        {
+            id: 4,
+            question: "Talonchilik - bu ochiq-oydin o'g'irlikmi?",
+            explanation: "Talonchilik - yashirin o'g'irlik, bosqinchilik esa ochiq-oydin o'g'irlik. ular JK 169 va 164-moddalarda tartibga solingan.",
+            correct: false
+        },
+        {
+            id: 5,
+            question: "Qasddan sodir etilgan jinoyat uchun jazo og'iroqmi?",
+            explanation: "Qasddan sodir etilgan jinoyatlar uchun jazo odatda ehtiyotsizlik bilan solingan jinoyatlarga qaraganda og'irroq bo'ladi.",
+            correct: true
+        }
+    ]
+};
+
+function checkAnswer(questionId, userAnswer, explanation) {
+    const question = quizQuestions.general.find(q => q.id === questionId);
+    const isCorrect = userAnswer === question.correct;
+    
+    const explanationBox = document.getElementById(`explanation-${questionId}`);
+    const explanationText = document.getElementById(`explanation-text-${questionId}`);
+    
+    explanationBox.classList.remove('correct-answer', 'wrong-answer');
+    
+    if (isCorrect) {
+        score++;
+        explanationBox.classList.add('correct-answer');
+        explanationText.innerHTML = `<i class="fas fa-check-circle text-success"></i> <strong>To'g'ri!</strong> ${explanation}`;
+        
+        // Add pulse animation
+        event.target.classList.add('pulse-green');
+    } else {
+        explanationBox.classList.add('wrong-answer');
+        explanationText.innerHTML = `<i class="fas fa-times-circle text-danger"></i> <strong>Noto'g'ri.</strong> ${explanation}`;
+        
+        // Add shake animation
+        event.target.classList.add('shake');
+    }
+    
+    explanationBox.style.display = 'block';
+    
+    // Disable buttons after answering
+    const buttons = event.target.parentElement.querySelectorAll('button');
+    buttons.forEach(btn => btn.disabled = true);
+    
+    // Update score and progress
+    updateProgress();
+    
+    // Move to next question after delay
+    setTimeout(() => {
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            showNextQuestion();
+        } else {
+            showQuizCompletion();
+        }
+    }, 3000);
+}
+
+function updateProgress() {
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    
+    const progress = (currentQuestion / totalQuestions) * 100;
+    progressBar.style.width = progress + '%';
+    progressText.textContent = `${currentQuestion}/${totalQuestions}`;
+    scoreDisplay.textContent = score;
+}
+
+function showNextQuestion() {
+    // This would load the next question
+    // For now, we'll just update the display
+    console.log(`Moving to question ${currentQuestion}`);
+}
+
+function showQuizCompletion() {
+    document.getElementById('quizContent').style.display = 'none';
+    document.getElementById('quizCompletion').style.display = 'block';
+    
+    const finalScore = document.getElementById('finalScore');
+    const resultMessage = document.getElementById('resultMessage');
+    
+    finalScore.textContent = `${score}/${totalQuestions}`;
+    
+    let message = '';
+    let messageClass = '';
+    
+    if (score >= 9) {
+        message = "A'lo! Siz huquqiy tushunchalarni mukammal darajada bilasiz!";
+        messageClass = 'text-success';
+    } else if (score >= 7) {
+        message = "Yaxshi! Siz ko'p narsalarni bilasiz, biroz o'rganib chiqing.";
+        messageClass = 'text-primary';
+    } else if (score >= 5) {
+        message = "Qoniqarli. Huquqiy tushunchalarni chuqurroq o'rganish tavsiya etiladi.";
+        messageClass = 'text-warning';
+    } else {
+        message = "O'rganishga harakat qiling! Huquqiy bilimlar muhim.";
+        messageClass = 'text-danger';
+    }
+    
+    resultMessage.innerHTML = `<span class="${messageClass}">${message}</span>`;
+}
+
+function restartQuiz() {
+    currentQuestion = 1;
+    score = 0;
+    
+    document.getElementById('quizContent').style.display = 'block';
+    document.getElementById('quizCompletion').style.display = 'none';
+    
+    // Reset progress
+    updateProgress();
+    
+    // Reset first question
+    const explanationBox = document.getElementById('explanation-1');
+    explanationBox.style.display = 'none';
+    
+    // Enable buttons again
+    const buttons = document.querySelectorAll('.answer-buttons button');
+    buttons.forEach(btn => btn.disabled = false);
+}
+
+function startQuiz(type) {
+    // This would start a specific quiz type
+    console.log(`Starting quiz: ${type}`);
+    // For now, just restart the main quiz
+    restartQuiz();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateProgress();
+});
+</script>
+{% endblock %}

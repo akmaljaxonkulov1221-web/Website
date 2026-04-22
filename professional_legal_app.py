@@ -162,6 +162,48 @@ def visualization():
                          analyzed_data=ANALYZED_DATA,
                          analysis_report=ANALYSIS_REPORT)
 
+@app.route('/visual-explanations')
+def visual_explanations():
+    """Vizual tushuntirishlar sahifasi"""
+    return render_template('visual_explanations.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
+@app.route('/interactive-quiz')
+def interactive_quiz():
+    """Interaktiv testlar sahifasi"""
+    return render_template('interactive_quiz.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
+@app.route('/legal-map-interactive')
+def legal_map_interactive():
+    """Interaktiv huquqiy xarita"""
+    return render_template('legal_map_interactive.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
+@app.route('/kahoot-quiz')
+def kahoot_quiz():
+    """Kahoot test tizimi"""
+    return render_template('kahoot_quiz.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
+@app.route('/education-dashboard')
+def education_dashboard():
+    """Ta'lim dashboardi"""
+    # Mock user data (in real app, this would come from session/auth)
+    user = {
+        'name': 'Student User',
+        'role': 'student',
+        'email': 'student@example.com'
+    }
+    return render_template('education_dashboard.html',
+                         user=user,
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT)
+
 @app.route('/api/statistics')
 def api_statistics():
     """Statistika API"""

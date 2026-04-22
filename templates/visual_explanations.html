@@ -1,0 +1,367 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Vizual Tushuntirishlar - Professional Legal System{% endblock %}
+
+{% block extra_css %}
+<style>
+.flowchart-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.flowchart-item {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 10px 0;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.flowchart-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.flowchart-arrow {
+    text-align: center;
+    font-size: 24px;
+    color: white;
+    margin: 10px 0;
+}
+
+.interactive-diagram {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.diagram-element {
+    display: inline-block;
+    padding: 15px 25px;
+    margin: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.element-subject {
+    background: #28a745;
+    color: white;
+}
+
+.element-object {
+    background: #007bff;
+    color: white;
+}
+
+.element-subjective {
+    background: #ffc107;
+    color: black;
+}
+
+.element-connection {
+    background: #6c757d;
+    color: white;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.timeline-container {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    margin-left: 50px;
+    position: relative;
+    border-left: 4px solid #007bff;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 20px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007bff;
+}
+
+.explanation-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-4 fw-bold text-primary">
+            <i class="fas fa-chalkboard-teacher"></i> Vizual Tushuntirishlar
+        </h1>
+        <p class="lead text-muted">Huquqiy tushunchalarni interaktiv diagrammalar va animatsiyalar orqali o'rganing</p>
+    </div>
+</div>
+
+<!-- Jinoyat tarkibi sxemasi -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="flowchart-container">
+            <h3 class="text-white text-center mb-4">Jinoyat tarkibi sxemasi</h3>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="flowchart-item element-subject" onclick="showExplanation('subject')">
+                        <h4><i class="fas fa-user"></i> Subjekt</h4>
+                        <p>Jinoyatni sodir etuvchi jismoniy shaxs</p>
+                        <small>Yoshi 16 yoshdan katta, aqli raso</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="flowchart-item element-object" onclick="showExplanation('object')">
+                        <h4><i class="fas fa-shield-alt"></i> Obekt</h4>
+                        <p>Jinoyat ta'sir etgan jamiyat munosabatlari</p>
+                        <small>Huquqni buzish, zarar yetkazish</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="flowchart-item element-subjective" onclick="showExplanation('subjective')">
+                        <h4><i class="fas fa-brain"></i> Subyektiv tomon</h4>
+                        <p>Ayb, niyat, xatolik</p>
+                        <p>Qasddan yoki ehtiyotsizlik</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flowchart-arrow">
+                <i class="fas fa-arrow-down"></i>
+            </div>
+            
+            <div class="text-center">
+                <div class="flowchart-item pulse" style="background: #dc3545; color: white;">
+                    <h3><i class="fas fa-gavel"></i> JINoyat tarkibi</h3>
+                    <p>Uchala element birgalikda jinoyat tarkibini tashkil qiladi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive diagrammalar -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h3 class="mb-4">Interactive diagrammalar</h3>
+        <div class="interactive-diagram">
+            <h4>Jinoyat turlari va ularning bog'liqligi</h4>
+            <div class="text-center mt-4">
+                <div class="diagram-element element-subject" onclick="showCrimeType('theft')">
+                    <i class="fas fa-hand-holding-usd"></i> Talonchilik
+                </div>
+                <div class="diagram-element element-connection">+</div>
+                <div class="diagram-element element-object" onclick="showCrimeType('robbery')">
+                    <i class="fas fa-fist-raised"></i> Bosqinchilik
+                </div>
+                <div class="diagram-element element-connection">=</div>
+                <div class="diagram-element element-subjective" onclick="showCrimeType('aggravated')">
+                    <i class="fas fa-exclamation-triangle"></i> Og'irlashtiruvchi holatlar
+                </div>
+            </div>
+            
+            <div id="crimeExplanation" class="mt-4 p-3 bg-light rounded" style="display: none;">
+                <h5>Tushuntirish:</h5>
+                <p id="crimeText"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Timeline animatsiyalari -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h3 class="mb-4">Voqealar ketma-ketligi (Timeline)</h3>
+        <div class="timeline-container">
+            <div class="timeline-item">
+                <h5><i class="fas fa-lightbulb"></i> 1. Niyat paydo bo'lishi</h5>
+                <p>Jinoyatni sodir etish g'oyasi paydo bo'ladi. Reja tuziladi.</p>
+                <small class="text-muted">Vaqt: bir necha daqiqa - bir necha kun</small>
+            </div>
+            
+            <div class="timeline-item">
+                <h5><i class="fas fa-tools"></i> 2. Tayyorgarlik ko'rish</h5>
+                <p>Jinoyatni sodir etish uchun qurol-yarog', asbob-uskunalarni tayyorlash.</p>
+                <small class="text-muted">Vaqt: bir necha soat - bir necha kun</small>
+            </div>
+            
+            <div class="timeline-item">
+                <h5><i class="fas fa-running"></i> 3. Jinoyatni sodir etish</h5>
+                <p>To'g'ridan-to'g'ri jinoyat harakati amalga oshiriladi.</p>
+                <small class="text-muted">Vaqt: bir necha daqiqa - bir necha soat</small>
+            </div>
+            
+            <div class="timeline-item">
+                <h5><i class="fas fa-car"></i> 4. Joydan qochish</h5>
+                <p>Jinoyatchi voqea joyidan qochib ketadi.</p>
+                <small class="text-muted">Vaqt: bir necha daqiqa</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real hayotga o'xshash sxemalar -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h3 class="mb-4">Real hayot sxemalari</h3>
+        <div class="explanation-card">
+            <h4><i class="fas fa-store"></i> Do'kon talonchiligi misoli</h4>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5>Tayyorgarlik bosqichi:</h5>
+                    <ul>
+                        <li>Do'kon o'rganiladi (ish vaqti, xavfsizlik tizimi)</li>
+                        <li>Qurol-yarog' tayyorlanadi</li>
+                        <li>Qochish rejalashtiriladi</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h5>Amalga oshirish bosqichi:</h5>
+                    <ul>
+                        <li>Xodimlarni qo'rqitish</li>
+                        <li>Pul yoki mahsulotlarni olish</li>
+                        <li>Tez orada qochib ketish</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for explanations -->
+<div class="modal fade" id="explanationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Tushuntirish</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showExplanation(type) {
+    const explanations = {
+        subject: {
+            title: 'Subjekt (Jinoyatchi)',
+            content: `
+                <h4>Jinoyat subjektining xususiyatlari:</h4>
+                <ul>
+                    <li><strong>Jismoniy shaxs</strong> - faqat inson jinoyat subjekti bo'la oladi</li>
+                    <li><strong>Yoshi 16 dan yuqori</strong> - umumiy qoida, ba'zi jinoyatlar uchun 14 yosh</li>
+                    <li><strong>Aqli raso</strong> - ruhiy kasalligi bo'lmasligi kerak</li>
+                    <li><strong>Javobgarlikka layoqatli</strong> - o'z harakatlarini anglab yetishi va boshqarishi kerak</li>
+                </ul>
+                <div class="alert alert-info mt-3">
+                    <strong>Misol:</strong> 18 yoshli, aqli raso shaxs - to'liq jinoyat subjekti
+                </div>
+            `
+        },
+        object: {
+            title: 'Obekt (Jamiyat munosabatlari)',
+            content: `
+                <h4>Jinoyat obektining turlari:</h4>
+                <ul>
+                    <li><strong>Umumiy obekt</strong> - butun jamiyat munosabatlari</li>
+                    <li><li><strong>Ixtiyoriy obekt</strong> - mulkiy huquqlar, hayot, sog'liq</li>
+                    <li><strong>Qo'shimcha obekt</strong> - tinchlik, tartib, axloq</li>
+                </ul>
+                <div class="alert alert-warning mt-3">
+                    <strong>Eslatma:</strong> Jinoyat har doim jamiyatga zarar yetkazadi, shu sababli u jamiyat tomonidan jazolanadi
+                </div>
+            `
+        },
+        subjective: {
+            title: 'Subyektiv tomon (Ayb)',
+            content: `
+                <h4>Aybning shakllari:</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-bullseye"></i> Qasddan (Directus)</h5>
+                        <ul>
+                            <li>Niyat - oqibatni oldindan ko'zlash</li>
+                            <li>Xohish - oqibatni istash</li>
+                            <li>Qasddan xatolik - oqibatni istamasdan, lekin oldindan ko'zlash</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Ehtiyotsizlik (Culpa)</h5>
+                        <ul>
+                            <li>Bevchorlik - oqibatni oldindan ko'zlamaslik</li>
+                            <li>E'tiborsizlik - oqibatning oldini olish uchun choralar ko'rmamaslik</li>
+                        </ul>
+                    </div>
+                </div>
+            `
+        }
+    };
+    
+    const modal = new bootstrap.Modal(document.getElementById('explanationModal'));
+    document.getElementById('modalTitle').textContent = explanations[type].title;
+    document.getElementById('modalBody').innerHTML = explanations[type].content;
+    modal.show();
+}
+
+function showCrimeType(type) {
+    const explanations = {
+        theft: {
+            text: "Talonchilik - o'g'rilik. Mol-mulkni yashirincha olish. Qasddan yoki ehtiyotsizlik bilan sodir etilishi mumkin. Maksimal jazo - 10 yilgacha ozodlikdan mahrum qilish."
+        },
+        robbery: {
+            text: "Bosqinchilik - ochiq-oydin o'g'rilik. Qonunga zid ravishda olingan mol-mulkni olish uchun zo'rlik ishlatish yoki undan foydalanish bilan tahdid qilish. Maksimal jazo - 15 yilgacha ozodlikdan mahrum qilish."
+        },
+        aggravated: {
+            text: "Og'irlashtiruvchi holatlar - jazoni og'irlashtiruvchi omillar. Guruhlash, qurol ishlatish, katta miqdordagi mollar, o'lim yoki og'ir jarohat yetkazish kabi holatlar."
+        }
+    };
+    
+    document.getElementById('crimeText').textContent = explanations[type].text;
+    document.getElementById('crimeExplanation').style.display = 'block';
+}
+
+// Initialize tooltips and popovers
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+});
+</script>
+{% endblock %}
