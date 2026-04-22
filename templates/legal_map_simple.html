@@ -1,0 +1,107 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Huquqiy xarita - Professional Legal System{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Huquqiy xarita</h1>
+    <p class="page-subtitle">Moddalarning o'zaro bog'liqligi va tuzilishi</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-value">{{ map_data.subjects|length }}</div>
+        <div class="stat-label">Fanlar</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-value">{{ map_data.articles|length }}</div>
+        <div class="stat-label">Moddalar</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-link"></i>
+        </div>
+        <div class="stat-value">{{ map_data.connections|length }}</div>
+        <div class="stat-label">Bog'liqliklar</div>
+    </div>
+</div>
+
+<div class="content-card">
+    <h2 class="mb-4">Fanlar</h2>
+    <div class="row">
+        {% for subject in map_data.subjects %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ subject.name }}</h5>
+                    <p class="card-text">{{ subject.description }}</p>
+                    <div class="badge" style="background-color: {{ subject.color }};">{{ subject.name }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="content-card">
+    <h2 class="mb-4">Moddalar</h2>
+    <div class="row">
+        {% for article in map_data.articles[:10] %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">{{ article.number }}</h6>
+                    <p class="card-text">{{ article.title }}</p>
+                    <small class="text-muted">{{ article.code_name }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="content-card">
+    <h2 class="mb-4">Bog'liqliklar</h2>
+    <div class="row">
+        {% for connection in map_data.connections[:5] %}
+        <div class="col-md-12 mb-2">
+            <div class="d-flex align-items-center">
+                <div class="badge bg-primary me-2">{{ connection.from }}</div>
+                <i class="fas fa-arrow-right me-2"></i>
+                <div class="badge bg-success me-2">{{ connection.to }}</div>
+                <small class="text-muted">{{ connection.type }}</small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="content-card">
+    <h2 class="mb-4">Tezkor harakatlar</h2>
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('subjects') }}" class="btn btn-primary w-100">
+                <i class="fas fa-arrow-left"></i> Fanlarga qaytish
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('search') }}" class="btn btn-outline-success w-100">
+                <i class="fas fa-search"></i> Qidiruv
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ url_for('codes') }}" class="btn btn-outline-info w-100">
+                <i class="fas fa-book"></i> Kodekslar
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

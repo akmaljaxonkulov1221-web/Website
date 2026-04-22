@@ -86,10 +86,38 @@ def dashboard():
     recent_results = [
         {
             'percentage': 85,
-            'completed_at': datetime(2024, 4, 22)
+            'completed_at': datetime(2024, 4, 22),
+            'test': {
+                'title': 'Jinoyat kodeksi testi'
+            }
         }
     ]
-    subjects = ['Jinoyat kodeksi', 'Fuqarolik kodeksi', 'Ma\'muriy kodeksi']
+    subjects = [
+    {
+        'id': 'jinoyat_kodeksi',
+        'name': 'Jinoyat kodeksi',
+        'description': 'Jinoyat huquqi bo\'yicha asosiy hujjat',
+        'articles': LEGAL_DATA.get('Jinoyat kodeksi', {}).get('moddalar', []),
+        'color': '#ef4444',
+        'icon': 'gavel'
+    },
+    {
+        'id': 'fuqarolik_kodeksi',
+        'name': 'Fuqarolik kodeksi',
+        'description': 'Fuqarolik huquqi bo\'yicha asosiy hujjat',
+        'articles': LEGAL_DATA.get('Fuqarolik kodeksi', {}).get('moddalar', []),
+        'color': '#10b981',
+        'icon': 'balance-scale'
+    },
+    {
+        'id': 'mamuriy_kodeksi',
+        'name': 'Ma\'muriy kodeksi',
+        'description': 'Ma\'muriy huquqi bo\'yicha asosiy hujjat',
+        'articles': LEGAL_DATA.get('Ma\'muriy kodeksi', {}).get('moddalar', []),
+        'color': '#f59e0b',
+        'icon': 'shield-alt'
+    }
+]
     
     return render_template('student_dashboard.html',
                          user=user,
@@ -165,7 +193,67 @@ def search():
 @app.route('/legal_map')
 def legal_map():
     """Huquqiy xarita sahifasi"""
-    return render_template('legal_map.html',
+    # Create mock map data structure with numeric IDs
+    subjects = [
+        {
+            'id': 0,
+            'name': 'Jinoyat kodeksi',
+            'color': '#ef4444',
+            'description': 'Jinoyat huquqi bo\'yicha asosiy hujjat'
+        },
+        {
+            'id': 1,
+            'name': 'Fuqarolik kodeksi',
+            'color': '#10b981',
+            'description': 'Fuqarolik huquqi bo\'yicha asosiy hujjat'
+        },
+        {
+            'id': 2,
+            'name': 'Ma\'muriy kodeksi',
+            'color': '#f59e0b',
+            'description': 'Ma\'muriy huquqi bo\'yicha asosiy hujjat'
+        }
+    ]
+    
+    # Create mock articles
+    articles = []
+    article_id = 0
+    for code_name, code_data in LEGAL_DATA.items():
+        for modda in code_data.get('moddalar', [])[:5]:  # Take first 5 articles from each code
+            subject_id = 0 if 'Jinoyat' in code_name else 1 if 'Fuqarolik' in code_name else 2
+            articles.append({
+                'id': article_id,
+                'subject_id': subject_id,
+                'number': modda.get('id', ''),
+                'title': modda.get('nomi', ''),
+                'code_name': code_name
+            })
+            article_id += 1
+    
+    # Create mock connections
+    connections = []
+    for i in range(min(10, len(articles))):
+        connections.append({
+            'from': i,
+            'to': (i + 1) % len(articles),
+            'type': 'similar' if i % 2 == 0 else 'reference'
+        })
+    
+    map_data = {
+        'subjects': subjects,
+        'articles': articles,
+        'connections': connections
+    }
+    
+    return render_template('legal_map_simple.html',
+                         legal_data=LEGAL_DATA,
+                         analysis_report=ANALYSIS_REPORT,
+                         map_data=map_data)
+
+@app.route('/tests')
+def tests():
+    """Testlar sahifasi"""
+    return render_template('tests.html',
                          legal_data=LEGAL_DATA,
                          analysis_report=ANALYSIS_REPORT)
 
